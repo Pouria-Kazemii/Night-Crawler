@@ -1,0 +1,4 @@
+playwright
+requests
+pymongo
+elasticsearch
