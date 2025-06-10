@@ -5,19 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="58ec31c2-d8ca-42fe-9357-f6fabe6c3299" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/NightCrawler.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/NightCrawler.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Laravel/app/Models/User.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Laravel/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/composer.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Laravel/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/composer.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Laravel/dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Laravel/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/config/app.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/config/app.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/config/scout.php" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Laravel/resources/css/app.css" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/resources/css/app.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Laravel/resources/js/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/resources/js/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/resources/views/auth/login.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/resources/views/auth/login.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/resources/views/auth/register.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/resources/views/auth/register.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/resources/views/components/application-logo.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/resources/views/components/application-logo.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/resources/views/layouts/app.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/resources/views/layouts/app.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/resources/views/layouts/guest.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/resources/views/layouts/guest.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/resources/views/layouts/navigation.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/resources/views/layouts/navigation.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/routes/auth.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/routes/auth.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Laravel/routes/web.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/routes/web.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Laravel/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/vite.config.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/tailwind.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/tailwind.config.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -153,9 +152,9 @@
       <path value="$PROJECT_DIR$/Laravel/vendor/psr/clock" />
     </include_path>
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 4
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
   <component name="ProjectId" id="2yGD2CalZBbpbjUgWe3p6CFuiUH" />
   <component name="ProjectViewState">
     <option name="autoscrollToSource" value="true" />
@@ -193,6 +192,7 @@
       <updated>1749451807379</updated>
       <workItem from="1749451809967" duration="9779000" />
       <workItem from="1749468720684" duration="4471000" />
+      <workItem from="1749553480518" duration="12000" />
     </task>
     <servers />
   </component>
