@@ -16,6 +16,14 @@
                         {{ __('messages.Dashboard') }}
                     </x-nav-link>
                 </div>
+
+                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('crawl-nodes.index')" :active="request()->routeIs('crawl-nodes.index')">
+                        {{ __('پروکسی ها') }}
+                    </x-nav-link>
+                </div>
+
+                
             </div>
 
             <!-- Settings Dropdown -->
@@ -83,6 +91,11 @@
                 <x-responsive-nav-link :href="route('profile.edit')">
                     {{ __('Profile') }}
                 </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('crawl-nodes.index')">
+                    {{ __('پروکسی ها') }}
+                </x-responsive-nav-link>
+                
 
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">

@@ -1,4 +1,5 @@
 import forms from '@tailwindcss/forms';
+import rtl from 'tailwindcss-rtl';
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -16,5 +17,6 @@ export default {
         },
     },
 
-    plugins: [forms],
+    plugins: [forms, rtl],
 };
+

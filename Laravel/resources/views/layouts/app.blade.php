@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="rtl" class="rtl">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -24,7 +24,7 @@
     </head>
 <body class="font-vazir antialiased">
         <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')z
+            @include('layouts.navigation')
 
             <!-- Page Heading -->
             @isset($header)
