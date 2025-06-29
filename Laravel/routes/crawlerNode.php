@@ -11,5 +11,6 @@ Route::prefix('/crawler-nodes')->middleware('auth')->controller(CrawlerNodeContr
     Route::get('/{crawlerNode}/edit' , 'edit')->name('crawl-nodes.edit');
     Route::put('/{crawlerNode}' , 'update')->name('crawl-nodes.update');
     Route::delete('/{crawlerNode}' , 'destroy')->name('crawl-nodes.destroy');
+    Route::get('{crawlerNode}/ping' , 'pingNode' )->name('crawl-nodes.ping');
 
 });

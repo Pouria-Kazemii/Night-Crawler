@@ -50,6 +50,12 @@
                                             ویرایش
                                         </a>
 
+                                        <!-- Ping Test Button -->
+                                        <a href="{{ route('crawl-nodes.ping', ['crawlerNode' => $node]) }}"
+                                           class="bg-sky-500 hover:bg-sky-600 text-white text-sm px-3 py-1 rounded transition">
+                                            تست سرعت
+                                        </a>
+                                        
                                         <!-- Delete Button (no confirmation) -->
                                         <form action="{{ route('crawl-nodes.destroy', $node) }}" method="POST" onsubmit="return confirm('آیا مطمئن هستید؟');">
                                             @csrf

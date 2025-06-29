@@ -23,15 +23,6 @@ services:
     networks:
       - app-network
 
-  crawler:
-    build:
-      context: ./crawler
-    container_name: crawler-service
-    volumes:
-      - ./crawler:/app
-    depends_on:
-      - mongo
-
   mongo:
     image: mongo
     container_name: mongo
