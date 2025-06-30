@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CrawlerNode\StoreCrawlerNodeRequest;
 use App\Http\Requests\CrawlerNode\UpdateCrawlerNodeRequest;
-use App\Models\Crawler;
 use App\Models\CrawlerNode;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Http;
@@ -46,7 +45,7 @@ class CrawlerNodeController extends Controller
             ->with('status', 'پروکسی با موفقیت به‌روزرسانی شد.');
     }
     
-    public function destroy(CrawlerNode $crawlerNode)
+    public function destroy(CrawlerNode $crawlerNode) : RedirectResponse
     {
         $crawlerNode->delete();
 

@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('پروکسی ها') }}
+            {{ __('خزشگرها') }}
         </h2>
     </x-slot>
 
@@ -19,9 +19,9 @@
 
                 <!-- Create Button Inside Container -->
                 <div class="flex justify-start mb-4">
-                    <a href="{{ route('crawl-nodes.create') }}"
+                    <a href="{{ route('crawler.create') }}"
                     class="inline-block bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition">
-                        ایجاد پروکسی جدید
+                        ایجاد خزشگر جدید
                     </a>
                 </div>
                 <table class="w-full rtl:text-right text-sm text-gray-800">
@@ -29,42 +29,34 @@
                         <tr>
                             <th class="px-4 py-2">#</th>
                             <th class="px-4 py-2">نام</th>
-                            <th class="px-4 py-2">IP</th>
-                            <th class="px-4 py-2">پورت</th>
-                            <th class="px-4 py-2">پروتکل</th>
                             <th class="px-4 py-2">وضعیت</th>
-                            <th class="px-4 py-2">(ms) تاخیر</th>
+                            <th class="px-4 py-2">مدل</th>
+                            <th class="px-4 py-2">آدرس اصلی</th>
+                            <th class="px-4 py-2">مقدار تاخیر</th>
                             <th class="px-4 py-2">آخرین استفاده</th>
                             <th class="px-4 py-2 text-center">عملیات</th>
                         </tr>
                     </thead>
                     <tbody class="text-gray-800">
-                        @forelse ($crawlNodes as $index => $node)
+                        @forelse ($crawlers as $index => $crawler)
                             <tr class="border-t hover:bg-gray-100">
-                                <td class="px-4 py-2 align-middle">{{ $crawlNodes->firstItem() + $index }}</td>
-                                <td class="px-4 py-2 align-middle">{{ $node->name }}</td>
-                                <td class="px-4 py-2 align-middle">{{ $node->ip_address }}</td>
-                                <td class="px-4 py-2 align-middle">{{ $node->port }}</td>
-                                <td class="px-4 py-2 align-middle">{{ strtoupper($node->protocol) }}</td>
-                                <td class="px-4 py-2 align-middle">{{ $node->status }}</td>
-                                <td class="px-4 py-2 align-middle">ms {{ $node->latency }}</td>
-                                <td class="px-4 py-2 align-middle">{{ $node->last_used_at?->diffForHumans() ?? '-' }}</td>
+                                <td class="px-4 py-2 align-middle">{{ $crawlers->firstItem() + $index }}</td>
+                                <td class="px-4 py-2 align-middle">{{ $crawler->name }}</td>
+                                <td class="px-4 py-2 align-middle">{{ $crawler->crawler_status }}</td>
+                                <td class="px-4 py-2 align-middle">{{ $crawler->crawler_type }}</td>
+                                <td class="px-4 py-2 align-middle">{{ $crawler->base_url }}</td>
+                                <td class="px-4 py-2 align-middle">{{ $crawler->crawl_delay }}</td>
+                                <td class="px-4 py-2 align-middle">{{ $crawler->last_run_at?->diffForHumans() ?? '-' }}</td>
                                 <td class="px-4 py-2 align-middle text-center">
                                     <div class="flex justify-center gap-2 rtl:flex-row-reverse">
                                         <!-- Edit Button -->
-                                        <a href="{{ route('crawl-nodes.edit', $node) }}"
+                                        <a href="{{ route('crawler.edit', $crawler) }}"
                                            class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-3 py-1 rounded transition">
                                             ویرایش
                                         </a>
-
-                                        <!-- Ping Test Button -->
-                                        <a href="{{ route('crawl-nodes.ping', ['crawlerNode' => $node]) }}"
-                                           class="bg-sky-500 hover:bg-sky-600 text-white text-sm px-3 py-1 rounded transition">
-                                            تست سرعت
-                                        </a>
                                         
                                         <!-- Delete Button (no confirmation) -->
-                                        <form action="{{ route('crawl-nodes.destroy', $node) }}" method="POST" onsubmit="return confirm('آیا مطمئن هستید؟');">
+                                        <form action="{{ route('crawler.destroy', $crawler) }}" method="POST" onsubmit="return confirm('آیا مطمئن هستید؟');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded transition">
@@ -84,7 +76,7 @@
 
                 <!-- Pagination -->
                 <div class="flex justify-center items-center mt-6 pt-6">
-                    {{ $crawlNodes->links() }}
+                    {{ $crawlers->links() }}
                 </div>
             </div>
         </div>

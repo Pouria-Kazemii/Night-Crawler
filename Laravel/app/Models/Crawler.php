@@ -18,7 +18,7 @@ class Crawler extends EloquentModel
         'title', // string
         'description', //string
         'crawler_status',  // active | paused | completed | error
-        'crawler_type', // static | dynamic | paginated | authenticated | api | seed
+        'crawler_type', // static | dynamic | paginated | authenticated | api | seed 
         'base_url', // string
         'start_urls', // array
         'selectors', // objects
@@ -27,6 +27,9 @@ class Crawler extends EloquentModel
         'api_config', // object
         'schedule', // objects
         'max_depth', // int
+        'link_filter_rules', // array
+        'crawl_delay', // int,
+        'last_run_at' // datetime
     ];
 
     public function casts() : array
@@ -39,6 +42,9 @@ class Crawler extends EloquentModel
             'api_config' => 'array',
             'schedule' => 'array',
             'max_depth' => 'integer',
+            'start_urls' => 'array',
+            'link_filter_rules' => 'array',
+            'last_run_at' => 'datetime'
         ];
     }
 }
