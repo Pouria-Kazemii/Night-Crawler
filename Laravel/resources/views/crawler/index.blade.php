@@ -29,10 +29,10 @@
                         <tr>
                             <th class="px-4 py-2">#</th>
                             <th class="px-4 py-2">نام</th>
+                            <th class="px-4 py-2">توضیحات</th>
                             <th class="px-4 py-2">وضعیت</th>
                             <th class="px-4 py-2">مدل</th>
                             <th class="px-4 py-2">آدرس اصلی</th>
-                            <th class="px-4 py-2">مقدار تاخیر</th>
                             <th class="px-4 py-2">آخرین استفاده</th>
                             <th class="px-4 py-2 text-center">عملیات</th>
                         </tr>
@@ -41,11 +41,11 @@
                         @forelse ($crawlers as $index => $crawler)
                             <tr class="border-t hover:bg-gray-100">
                                 <td class="px-4 py-2 align-middle">{{ $crawlers->firstItem() + $index }}</td>
-                                <td class="px-4 py-2 align-middle">{{ $crawler->name }}</td>
+                                <td class="px-4 py-2 align-middle">{{ $crawler->title }}</td>
+                                <td class="px-4 py-2 align-middle">{{ $crawler->description }}</td>                                
                                 <td class="px-4 py-2 align-middle">{{ $crawler->crawler_status }}</td>
                                 <td class="px-4 py-2 align-middle">{{ $crawler->crawler_type }}</td>
                                 <td class="px-4 py-2 align-middle">{{ $crawler->base_url }}</td>
-                                <td class="px-4 py-2 align-middle">{{ $crawler->crawl_delay }}</td>
                                 <td class="px-4 py-2 align-middle">{{ $crawler->last_run_at?->diffForHumans() ?? '-' }}</td>
                                 <td class="px-4 py-2 align-middle text-center">
                                     <div class="flex justify-center gap-2 rtl:flex-row-reverse">
@@ -54,6 +54,16 @@
                                            class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-3 py-1 rounded transition">
                                             ویرایش
                                         </a>
+
+                                        <!-- Go Button -->
+                                             <form action="{{ route('crawler.go', $crawler) }}" method="POST" onsubmit="return confirm('آیا مطمئن هستید؟');">
+                                            @csrf
+                                            @method('POST')
+                                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded transition">
+                                                شروع
+                                            </button>
+                                        </form>
+
                                         
                                         <!-- Delete Button (no confirmation) -->
                                         <form action="{{ route('crawler.destroy', $crawler) }}" method="POST" onsubmit="return confirm('آیا مطمئن هستید؟');">

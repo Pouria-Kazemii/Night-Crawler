@@ -8,6 +8,9 @@
       <sourceFolder url="file://$MODULE_DIR$/Laravel/tests" isTestSource="true" packagePrefix="Tests\" />
       <sourceFolder url="file://$MODULE_DIR$/Laravel/tests/Feature" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/Laravel/tests/Unit" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/Laravel/spec" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/spec" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/brick/math" />
       <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/carbonphp/carbon-doctrine-types" />
       <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/composer" />
@@ -25,7 +28,6 @@
       <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/guzzlehttp/psr7" />
       <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/guzzlehttp/uri-template" />
       <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/hamcrest/hamcrest-php" />
-      <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/jenssegers/mongodb" />
       <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/laravel/breeze" />
       <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/laravel/framework" />
       <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/laravel/pail" />
@@ -123,6 +125,19 @@
       <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/vlucas/phpdotenv" />
       <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/voku/portable-ascii" />
       <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/webmozart/assert" />
+      <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/archtechx/enums" />
+      <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/dragon-code/contracts" />
+      <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/dragon-code/pretty-array" />
+      <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/dragon-code/support" />
+      <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/laravel-lang/config" />
+      <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/laravel-lang/locale-list" />
+      <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/laravel-lang/locales" />
+      <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/laravel-lang/native-country-names" />
+      <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/laravel-lang/native-currency-names" />
+      <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/laravel-lang/native-locale-names" />
+      <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/laravel-lang/publisher" />
+      <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/mongodb/laravel-mongodb" />
+      <excludeFolder url="file://$MODULE_DIR$/Laravel/vendor/symfony/polyfill-php81" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

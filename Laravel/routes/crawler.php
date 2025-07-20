@@ -11,4 +11,5 @@ Route::prefix('/crawler')->middleware('auth')->controller(CrawlerController::cla
     Route::get('/{crawler}/edit' , 'edit')->name('crawler.edit');
     Route::put('/{crawler}' , 'update')->name('crawler.update');
     Route::delete('/{crawler}' , 'destroy')->name('crawler.destroy');
+    Route::post('/{crawler}/go' , 'go')->name('crawler.go');
 });

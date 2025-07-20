@@ -51,7 +51,9 @@
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
                             <option value="">انتخاب کنید</option>
                             @foreach(['active' => 'فعال', 'paused' => 'متوقف', 'completed' => 'تکمیل‌شده', 'error' => 'خطا'] as $key => $label)
-                                <option value="{{ $key }}" @selected(old('crawler_status') === $key)>{{ $label }}</option>
+                                <option value="{{ $key }}" @selected(old('crawler_status', $crawler->crawler_status) == $key)>
+                                    {{ $label }}
+                                </option>
                             @endforeach
                         </select>
                         @error('crawler_status')
@@ -78,40 +80,232 @@
                     </div>
 
                     <!-- Selectors -->
-                    <div x-show="needsSelectors">
-                        <label for="selectors" class="block text-sm font-bold text-gray-700">Selectors (JSON)</label>
-                        <textarea name="selectors" id="selectors"
-                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
-                            placeholder='{"title": "h1"}'>{{ old('selectors', json_encode($crawler->selectors, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)) }}</textarea>
-                        @error('selectors') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+                    <div class="mb-6">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">انتخاب کننده‌ها</label>
+
+                        <div id="selectors-container">
+                            @php
+                                $existingSelectors = $crawler->selectors ?? [];
+
+                                if (is_string($existingSelectors)) {
+                                    $existingSelectors = array_map(function ($item) {
+                                        return ['key' => '', 'selector' => $item, 'full_html' => false];
+                                    }, explode(',', $existingSelectors));
+                                }
+
+                                $currentSelectors = old('selectors', $existingSelectors);
+
+                                if (empty($currentSelectors)) {
+                                    $currentSelectors = [
+                                        ['key' => 'title', 'selector' => '', 'full_html' => false],
+                                    ];
+                                }
+                            @endphp
+
+                            @foreach($currentSelectors as $index => $selector)
+                            <div class="selector-group grid grid-cols-12 gap-2 items-end mb-2">
+                                <div class="col-span-4">
+                                    <label class="block text-xs text-gray-500 mb-1">کلید</label>
+                                    <input type="text" name="selectors[{{$index}}][key]"
+                                        value="{{ $selector['key'] ?? '' }}"
+                                        class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
+                                        placeholder="مثال: title" required>
+                                </div>
+
+                                <div class="col-span-4">
+                                    <label class="block text-xs text-gray-500 mb-1">سلکتور</label>
+                                    <input type="text" name="selectors[{{$index}}][selector]"
+                                        value="{{ $selector['selector'] ?? (is_string($selector) ? $selector : '') }}"
+                                        class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
+                                        placeholder="مثال: h1.title" required>
+                                </div>
+
+                                <div class="col-span-3">
+                                    <label class="block text-xs text-gray-500 mb-1">دریافت HTML کامل</label>
+                                    <input type="checkbox" name="selectors[{{$index}}][full_html]" value="1"
+                                        {{ !empty($selector['full_html']) ? 'checked' : '' }}
+                                        class="rounded border-gray-300 text-red-600 shadow-sm focus:ring-red-500">
+                                </div>
+
+                                <div class="col-span-1">
+                                    @if($index >= 1)
+                                        <button type="button"
+                                                class="remove-selector bg-red-100 text-red-600 p-2 rounded-md hover:bg-red-200 text-sm">
+                                            حذف
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+
+                        <button type="button" id="add-selector" class="mt-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 text-sm">
+                            + افزودن انتخاب کننده جدید
+                        </button>
+
+                        @error('selectors')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
-                    <!-- Pagination Rule -->
-                    <div x-show="type === 'paginated'">
-                        <label for="pagination_rule" class="block text-sm font-bold text-gray-700">Pagination Rule (JSON)</label>
-                        <textarea name="pagination_rule" id="pagination_rule"
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const container = document.getElementById('selectors-container');
+                        const addButton = document.getElementById('add-selector');
+
+                        let selectorCount = container.querySelectorAll('.selector-group').length;
+
+                        addButton.addEventListener('click', function () {
+                            const newGroup = document.createElement('div');
+                            newGroup.className = 'selector-group grid grid-cols-12 gap-2 items-end mb-2';
+
+                            newGroup.innerHTML = `
+                                <div class="col-span-4">
+                                    <label class="block text-xs text-gray-500 mb-1">کلید</label>
+                                    <input type="text" name="selectors[${selectorCount}][key]"
+                                        class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
+                                        placeholder="مثال: title" required>
+                                </div>
+
+                                <div class="col-span-4">
+                                    <label class="block text-xs text-gray-500 mb-1">سلکتور</label>
+                                    <input type="text" name="selectors[${selectorCount}][selector]"
+                                        class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
+                                        placeholder="مثال: h1.title" required>
+                                </div>
+
+                                <div class="col-span-3">
+                                    <label class="block text-xs text-gray-500 mb-1">دریافت HTML کامل</label>
+                                    <input type="checkbox" name="selectors[${selectorCount}][full_html]" value="1"
+                                        class="rounded border-gray-300 text-red-600 shadow-sm focus:ring-red-500">
+                                </div>
+
+                                <div class="col-span-1">
+                                    <button type="button"
+                                            class="remove-selector bg-red-100 text-red-600 p-2 rounded-md hover:bg-red-200 text-sm">
+                                        حذف
+                                    </button>
+                                </div>
+                            `;
+
+                            container.appendChild(newGroup);
+                            selectorCount++;
+                        });
+
+                        container.addEventListener('click', function (e) {
+                            if (e.target.classList.contains('remove-selector')) {
+                                e.target.closest('.selector-group').remove();
+
+                                const groups = container.querySelectorAll('.selector-group');
+                                groups.forEach((group, index) => {
+                                    group.querySelector('[name*="[key]"]').name = `selectors[${index}][key]`;
+                                    group.querySelector('[name*="[selector]"]').name = `selectors[${index}][selector]`;
+                                    const checkbox = group.querySelector('[name*="[full_html]"]');
+                                    if (checkbox) {
+                                        checkbox.name = `selectors[${index}][full_html]`;
+                                    }
+                                });
+
+                                selectorCount = groups.length;
+                            }
+                        });
+                    });
+                    </script>
+
+
+
+                    <!-- URL Pattern -->
+                    <div x-show="['static', 'dynamic', 'paginated', 'seed'].includes(type)">
+                        <label for="url_pattern" class="block text-sm font-bold text-gray-700">الگوی URL</label>
+                        <input type="text" name="url_pattern" id="url_pattern"
+                            value="{{ old('url_pattern', $crawler->url_pattern) }}"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
-                            placeholder='{"next_page_selector": ".next"}'>{{ old('pagination_rule', json_encode($crawler->pagination_rule, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)) }}</textarea>
-                        @error('pagination_rule') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+                            placeholder="/page/{id}">
+                        @error('url_pattern') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <!-- Range Start/End -->
+                    <div class="flex gap-4" x-show="['static', 'dynamic', 'paginated', 'seed'].includes(type)">
+                        <div class="w-1/2">
+                            <label for="range_start" class="block text-sm font-bold text-gray-700">شروع</label>
+                            <input type="number" name="range[start]" id="range_start"
+                                value="{{ old('range.start', $crawler->range['start'] ?? '') }}"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                            @error('range.start') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+                        </div>
+                        <div class="w-1/2">
+                            <label for="range_end" class="block text-sm font-bold text-gray-700">پایان</label>
+                            <input type="number" name="range[end]" id="range_end"
+                                value="{{ old('range.end', $crawler->range['end'] ?? '') }}"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                            @error('range.end') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div x-show="type === 'paginated'">
+                        <label class="block text-sm font-bold text-gray-700">Pagination Selector</label>
+                        <input type="text" name="pagination_rule[next_page_selector]"
+                            value="{{ old('pagination_rule.next_page_selector', $crawler->pagination_rule['next_page_selector'] ?? '') }}"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
+                            placeholder=".next">
+                        @error('pagination_rule.next_page_selector') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+
+                        <label class="block text-sm font-bold text-gray-700 mt-3">حداکثر صفحات</label>
+                        <input type="number" name="pagination_rule[limit]"
+                            value="{{ old('pagination_rule.limit', $crawler->pagination_rule['limit'] ?? '') }}"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                        @error('pagination_rule.limit') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- Auth -->
                     <div x-show="type === 'authenticated'">
-                        <label for="auth" class="block text-sm font-bold text-gray-700">Auth (JSON)</label>
-                        <textarea name="auth" id="auth"
-                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
-                            placeholder='{"login_url": "..."}'>{{ old('auth', json_encode($crawler->auth, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)) }}</textarea>
-                        @error('auth') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+                        <label class="block text-sm font-bold text-gray-700">Login URL</label>
+                        <input type="url" name="auth[login_url]"
+                            value="{{ old('auth.login_url', $crawler->auth['login_url'] ?? '') }}"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                        @error('auth.login_url') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+
+                        <label class="block text-sm font-bold text-gray-700 mt-3">Username</label>
+                        <input type="text" name="auth[username]"
+                            value="{{ old('auth.username', $crawler->auth['username'] ?? '') }}"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                        @error('auth.username') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+
+                        <label class="block text-sm font-bold text-gray-700 mt-3">Password</label>
+                        <input type="password" name="auth[password]"
+                            value="{{ old('auth.password', $crawler->auth['password'] ?? '') }}"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                        @error('auth.password') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
 
-                    <!-- API Config -->
+                    <!-- API Config --> <!-- TODO --> 
                     <div x-show="type === 'api'">
-                        <label for="api_config" class="block text-sm font-bold text-gray-700">API Config (JSON)</label>
+                        <label class="block text-sm font-bold text-gray-700">API Config (JSON)</label>
                         <textarea name="api_config" id="api_config"
-                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
-                            placeholder='{"endpoint": "..."}'>{{ old('api_config', json_encode($crawler->api_config, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)) }}</textarea>
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
+                                placeholder='{"token": "...", "endpoint": "...", "method": "GET"}'>{{ old('api_config', json_encode($crawler->api_config, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)) }}</textarea>
                         @error('api_config') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
+
+                    <!-- Max Depth (only for seed) -->
+                    <div x-show="type === 'seed'">
+                        <label for="max_depth" class="block text-sm font-bold text-gray-700">عمق خزش</label>
+                        <input type="number" name="max_depth" id="max_depth"
+                            value="{{ old('max_depth', $crawler->max_depth) }}"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                        @error('max_depth') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <!-- Link Filter Rules (only for seed) -->
+                    <div x-show="type === 'seed'">
+                        <label for="link_filter_rules" class="block text-sm font-bold text-gray-700">قوانین فیلتر لینک</label>
+                        <input type="text" name="link_filter_rules[]" id="link_filter_rules"
+                            value="{{ old('link_filter_rules.0', implode(',', $crawler->link_filter_rules ?? [])) }}"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                        @error('link_filter_rules') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+                    </div>
+
 
                     <!-- Schedule -->
                     <div>
@@ -128,15 +322,6 @@
                         @error('schedule.time') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
 
-                    <!-- Max Depth -->
-                    <div>
-                        <label for="max_depth" class="block text-sm font-bold text-gray-700">عمق خزش (اختیاری)</label>
-                        <input type="number" name="max_depth" id="max_depth"
-                               value="{{ old('max_depth', $crawler->max_depth) }}"
-                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
-                        @error('max_depth') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
-                    </div>
-
                     <!-- Crawl Delay -->
                     <div>
                         <label for="crawl_delay" class="block text-sm font-bold text-gray-700">تاخیر خزش (ثانیه)</label>
@@ -146,14 +331,6 @@
                         @error('crawl_delay') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
 
-                    <!-- Link Filter Rules -->
-                    <div>
-                        <label for="link_filter_rules" class="block text-sm font-bold text-gray-700">قوانین فیلتر لینک (با کاما جدا شود)</label>
-                        <input type="text" name="link_filter_rules[]" id="link_filter_rules"
-                               value="{{ old('link_filter_rules.0', implode(',', $crawler->link_filter_rules ?? [])) }}"
-                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
-                        @error('link_filter_rules') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
-                    </div>
 
                     <!-- Submit -->
                     <div class="flex justify-start mt-6">

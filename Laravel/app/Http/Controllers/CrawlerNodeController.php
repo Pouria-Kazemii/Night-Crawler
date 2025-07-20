@@ -67,7 +67,6 @@ class CrawlerNodeController extends Controller
             $response = Http::timeout(2)->get("http://{$node->ip_address}:{$node->port}/health");
 
             $latency = round((microtime(true) - $start) * 1000); // in ms
-            dd($response);
 
             if ($response->successful() && $response['status'] === 'ok') {
                 $node->update([

@@ -3,17 +3,17 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Elastic\Elasticsearch\Client;
-use Elastic\Transport\Transport;
-use Elastic\Transport\TransportInterface;
-use Elastic\Transport\NodePool\StaticNodePool;
+use App\Contracts\CrawlerManagerInterface;
+use App\Services\CrawlerManager;
 
 class AppServiceProvider extends ServiceProvider
 {
-    public function register()
+
+    public function register(): void
     {
-      
+        $this->app->singleton(CrawlerManagerInterface::class, CrawlerManager::class);
     }
+
 
     public function boot()
     {

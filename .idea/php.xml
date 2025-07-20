@@ -22,7 +22,6 @@
       <path value="$PROJECT_DIR$/Laravel/vendor/webmozart/assert" />
       <path value="$PROJECT_DIR$/Laravel/vendor/nunomaduro/termwind" />
       <path value="$PROJECT_DIR$/Laravel/vendor/nunomaduro/collision" />
-      <path value="$PROJECT_DIR$/Laravel/vendor/jenssegers/mongodb" />
       <path value="$PROJECT_DIR$/Laravel/vendor/guzzlehttp/uri-template" />
       <path value="$PROJECT_DIR$/Laravel/vendor/sebastian/object-enumerator" />
       <path value="$PROJECT_DIR$/Laravel/vendor/sebastian/lines-of-code" />
@@ -127,6 +126,19 @@
       <path value="$PROJECT_DIR$/Laravel/vendor/psr/log" />
       <path value="$PROJECT_DIR$/Laravel/vendor/psr/container" />
       <path value="$PROJECT_DIR$/Laravel/vendor/psr/clock" />
+      <path value="$PROJECT_DIR$/Laravel/vendor/dragon-code/contracts" />
+      <path value="$PROJECT_DIR$/Laravel/vendor/dragon-code/pretty-array" />
+      <path value="$PROJECT_DIR$/Laravel/vendor/dragon-code/support" />
+      <path value="$PROJECT_DIR$/Laravel/vendor/laravel-lang/native-locale-names" />
+      <path value="$PROJECT_DIR$/Laravel/vendor/laravel-lang/publisher" />
+      <path value="$PROJECT_DIR$/Laravel/vendor/laravel-lang/locale-list" />
+      <path value="$PROJECT_DIR$/Laravel/vendor/laravel-lang/locales" />
+      <path value="$PROJECT_DIR$/Laravel/vendor/laravel-lang/native-country-names" />
+      <path value="$PROJECT_DIR$/Laravel/vendor/laravel-lang/native-currency-names" />
+      <path value="$PROJECT_DIR$/Laravel/vendor/laravel-lang/config" />
+      <path value="$PROJECT_DIR$/Laravel/vendor/mongodb/laravel-mongodb" />
+      <path value="$PROJECT_DIR$/Laravel/vendor/archtechx/enums" />
+      <path value="$PROJECT_DIR$/Laravel/vendor/symfony/polyfill-php81" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.2" />
