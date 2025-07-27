@@ -10,34 +10,8 @@ services:
     depends_on:
       - mongo
     environment:
-      - BROADCAST_DRIVER=reverb
-      - CACHE_DRIVER=redis
-      - QUEUE_CONNECTION=redis
       - DB_CONNECTION=mongodb
       - MONGO_DB_HOST=mongo
-      - LARAVEL_REVERB_APP_ID=app-id
-      - LARAVEL_REVERB_APP_KEY=app-key
-      - LARAVEL_REVERB_APP_SECRET=app-secret
-
-  redis:
-    image: redis:alpine
-    container_name: redis
-    ports:
-      - "6379:6379"
-
-   
-  reverb:
-    build:
-      context: ./reverb
-    container_name: reverb
-    depends_on:
-      - app
-    ports:
-      - "6001:6001"
-    environment:
-      - LARAVEL_REVERB_APP_ID=app-id
-      - LARAVEL_REVERB_APP_KEY=app-key
-      - LARAVEL_REVERB_APP_SECRET=app-secret
 
   node:
     image: node:20

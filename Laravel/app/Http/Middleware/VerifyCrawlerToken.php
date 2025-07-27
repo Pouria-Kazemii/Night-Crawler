@@ -16,9 +16,9 @@ class VerifyCrawlerToken
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $incomingToken = $request->header('X-Crawler-Token');
+        $incomingToken = $request->header('Authorization');
 
-        if (!$incomingToken || $incomingToken !== env('CRAWLER_API_TOKEN')) {
+        if (!$incomingToken || $incomingToken !== 'Bearer '.env('CRAWLER_API_TOKEN')) {
             Log::warning('Invalid crawler token attempt', [
                 'ip' => $request->ip(),
                 'token' => $incomingToken,

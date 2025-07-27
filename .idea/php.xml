@@ -139,6 +139,7 @@
       <path value="$PROJECT_DIR$/Laravel/vendor/mongodb/laravel-mongodb" />
       <path value="$PROJECT_DIR$/Laravel/vendor/archtechx/enums" />
       <path value="$PROJECT_DIR$/Laravel/vendor/symfony/polyfill-php81" />
+      <path value="$PROJECT_DIR$/Laravel/vendor/laravel/sanctum" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.2" />

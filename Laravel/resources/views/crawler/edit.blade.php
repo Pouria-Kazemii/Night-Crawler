@@ -5,8 +5,8 @@
 
     <div class="py-6">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow-md rounded-lg p-6" 
-                 x-data="crawlerForm()" 
+            <div class="bg-white shadow-md rounded-lg p-6"
+                 x-data="crawlerForm()"
                  x-init="type = '{{ old('crawler_type', $crawler->crawler_type) }}'">
                 <form method="POST" action="{{ route('crawler.update', $crawler) }}" class="rtl text-right space-y-4">
                     @csrf
@@ -43,7 +43,7 @@
                         </select>
                         @error('crawler_type') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
-   
+
                     <!-- Crawler Status -->
                     <div>
                         <label for="crawler_status" class="block text-sm font-bold text-gray-700">وضعیت خزنده</label>
@@ -81,6 +81,11 @@
 
                     <!-- Selectors -->
                     <div class="mb-6">
+
+                    <div class="bg-yellow-100 border border-yellow-300 text-yellow-800 px-4 py-3 rounded-md mb-4 text-sm">
+                        ⚠️ <strong>نکته:</strong> اگر از خزشگر نوع seed استفاده میکنید توجه داشته باشید تنها از اولین مورد وارد شده در این بخش استفاده خواهد شد. بدین ترتیب ما باقی انتخابگرها بی تاثیر میباشند. همچنین وارد کردن این بخش برای خزشگر نوع Seed الزامی نمیباشد.
+                    </div>
+
                         <label class="block text-sm font-bold text-gray-700 mb-2">انتخاب کننده‌ها</label>
 
                         <div id="selectors-container">
@@ -109,7 +114,7 @@
                                     <input type="text" name="selectors[{{$index}}][key]"
                                         value="{{ $selector['key'] ?? '' }}"
                                         class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
-                                        placeholder="مثال: title" required>
+                                        placeholder="مثال: title">
                                 </div>
 
                                 <div class="col-span-4">
@@ -117,7 +122,7 @@
                                     <input type="text" name="selectors[{{$index}}][selector]"
                                         value="{{ $selector['selector'] ?? (is_string($selector) ? $selector : '') }}"
                                         class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
-                                        placeholder="مثال: h1.title" required>
+                                        placeholder="مثال: h1.title">
                                 </div>
 
                                 <div class="col-span-3">
@@ -258,28 +263,50 @@
                         @error('pagination_rule.limit') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
 
+                    <!-- Pagination Config -->
+                    <div x-show="type === 'dynamic'">
+                        <label for="dynamic_limit" class="block text-sm font-bold text-gray-700">تعداد بارگیری های مجدد</label>
+                        <input type="number" name="dynamic_limit" id="dynamic_limit" value="{{ old('dynamic_limit' , $crawler->dynamic_limit ?? '') }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                        @error('dynamic_limit') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+                    </div>
+
                     <!-- Auth -->
                     <div x-show="type === 'authenticated'">
-                        <label class="block text-sm font-bold text-gray-700">Login URL</label>
+                        <label class="block text-sm font-bold text-gray-700">آدرس ورود</label>
                         <input type="url" name="auth[login_url]"
                             value="{{ old('auth.login_url', $crawler->auth['login_url'] ?? '') }}"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
                         @error('auth.login_url') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
 
-                        <label class="block text-sm font-bold text-gray-700 mt-3">Username</label>
+                        <label class="block text-sm font-bold text-gray-700 mt-3">نام کاربری</label>
                         <input type="text" name="auth[username]"
                             value="{{ old('auth.username', $crawler->auth['username'] ?? '') }}"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
                         @error('auth.username') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
 
-                        <label class="block text-sm font-bold text-gray-700 mt-3">Password</label>
+                        <label class="block text-sm font-bold text-gray-700 mt-3">رمز عبور</label>
                         <input type="password" name="auth[password]"
                             value="{{ old('auth.password', $crawler->auth['password'] ?? '') }}"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
                         @error('auth.password') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+
+                        <label class="block text-sm font-bold text-gray-700 mt-3">اطلاعات انتخاب کننده نام کاربری</label>
+                        <input type="text" name="auth[username_selector]"
+                               value="{{ old('auth.username_selector', $crawler->auth['username_selector'] ?? '') }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
+                               placeholder="html_tag[tag_attribute_name='tag_attribute_value'] برای مثال : input[name='login']">
+                        @error('auth.username_selector') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+
+                        <label class="block text-sm font-bold text-gray-700 mt-3">اطلاعات انتخاب کننده رمزعبور</label>
+                        <input type="text" name="auth[password_selector]"
+                               value="{{ old('auth.password_selector', $crawler->auth['password_selector'] ?? '') }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
+                               placeholder="html_tag[tag_attribute_name='tag_attribute_value'] برای مثال : input[name='password']">
+                        @error('auth.password_selector') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
 
-                    <!-- API Config --> <!-- TODO --> 
+                    <!-- API Config --> <!-- TODO -->
                     <div x-show="type === 'api'">
                         <label class="block text-sm font-bold text-gray-700">API Config (JSON)</label>
                         <textarea name="api_config" id="api_config"

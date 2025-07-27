@@ -5,18 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="58ec31c2-d8ca-42fe-9357-f6fabe6c3299" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/NightCrawler.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/NightCrawler.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/.env.example" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/app/Contracts/CrawlerManagerInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/app/Contracts/CrawlerManagerInterface.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Laravel/app/Http/Controllers/CrawlerController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/app/Http/Controllers/CrawlerController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/app/Http/Middleware/VerifyCrawlerToken.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/app/Http/Middleware/VerifyCrawlerToken.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Laravel/app/Http/Requests/Crawler/CreateCrawlerRequest.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/app/Http/Requests/Crawler/CreateCrawlerRequest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Laravel/app/Models/Crawler.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/app/Models/Crawler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/app/Models/CrawlerResult.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/app/Models/CrawlerResult.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/app/Services/CrawlerManager.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/app/Services/CrawlerManager.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/composer.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Laravel/database/seeders/CrawlerSeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/database/seeders/CrawlerSeeder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/public/favicon.ico" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Laravel/resources/views/crawler/create.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/resources/views/crawler/create.blade.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Laravel/resources/views/crawler/edit.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/resources/views/crawler/edit.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Laravel/resources/views/crawler/index.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/resources/views/crawler/index.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Laravel/resources/views/dashboard.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/resources/views/dashboard.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Laravel/routes/crawler.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/routes/crawler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/resources/views/layouts/app.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/resources/views/layouts/app.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -162,6 +169,7 @@
       <path value="$PROJECT_DIR$/Laravel/vendor/mongodb/laravel-mongodb" />
       <path value="$PROJECT_DIR$/Laravel/vendor/archtechx/enums" />
       <path value="$PROJECT_DIR$/Laravel/vendor/symfony/polyfill-php81" />
+      <path value="$PROJECT_DIR$/Laravel/vendor/laravel/sanctum" />
     </include_path>
   </component>
   <component name="ProjectColorInfo">{
@@ -180,6 +188,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;v1&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/kazem/Desktop/dpm/apps/Night-Crawler&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -206,6 +215,10 @@
       <workItem from="1749468720684" duration="4471000" />
       <workItem from="1749553480518" duration="12000" />
       <workItem from="1751967544958" duration="612000" />
+      <workItem from="1753519312064" duration="63000" />
+      <workItem from="1753524727786" duration="251000" />
+      <workItem from="1753525075759" duration="6409000" />
+      <workItem from="1753596825262" duration="9440000" />
     </task>
     <servers />
   </component>

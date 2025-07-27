@@ -64,11 +64,16 @@ class CreateCrawlerRequest extends FormRequest
             'auth.login_url' => $type === 'authenticated' ? ['required', 'url'] : ['nullable', 'url'],
             'auth.username' => $type === 'authenticated' ? ['required'] : ['nullable'],
             'auth.password' => $type === 'authenticated' ? ['required'] : ['nullable'],
-            
-            'api_config' => $type === 'api' ? ['required', 'array'] : ['nullable', 'array'],//TODO 
+            'auth.username_selector' => $type === 'authenticated' ? ['required'] : ['nullable'],
+            'auth.password_selector' => $type === 'authenticated' ? ['required'] : ['nullable'],
 
-            'selectors' => ($type === 'dynamic' || $type === 'static' || $type === 'paginated' || $type === 'authenticated') 
-            ? ['required', 'array'] 
+
+            'api_config' => $type === 'api' ? ['required', 'array'] : ['nullable', 'array'],//TODO
+
+            'dynamic_limit' => $type ==='dynamic' ? ['required' , 'integer'] : ['nullable' , 'integer'] ,
+
+            'selectors' => ($type === 'dynamic' || $type === 'static' || $type === 'paginated' || $type === 'authenticated')
+            ? ['required', 'array']
             : ['nullable', 'array'],
 
 
@@ -80,7 +85,7 @@ class CreateCrawlerRequest extends FormRequest
 
             'max_depth' => $type === 'seed' ? ['nullable', 'integer', 'min:0'] : ['prohibited'],
             'link_filter_rules' => $type === 'seed' ? ['nullable', 'array'] : ['prohibited'],
-            'link_filter_rules.*' => ['string'],
+            'link_filter_rules.*' => ['nullable' , 'string'],
         ];
     }
 
@@ -113,10 +118,12 @@ class CreateCrawlerRequest extends FormRequest
             'pagination_rule.limit' => 'حداکثر صفحات باید عدد باشد',
 
             'auth.required' => 'اطلاعات احراز هویت برای این نوع خزنده الزامی است.',
-            'auth.login_url.required' => 'آدرس صفحه ی ورود باری این نوع خزنده الزامی است',
+            'auth.login_url.required' => 'آدرس صفحه ی ورود برای این نوع خزنده الزامی است',
             'auth.login_url.url' => 'آدرس صفحه ی ورود فرمت درستی ندارد',
             'auth.username.required' => 'وارد کردن نام کاربری برای این نوع خزشگر الزامی میباشد',
             'auth.password.required' => 'وارد کردن رمز عبور برای این نوع خرشگر الزامی میباشد',
+            'auth.username_selector.required' => 'وارد کردن اطلاعات انتخاب کننده نام کاربری برای این نوع خزشگر الزامی میباشد',
+            'auth.password_selector.required' => 'وارد کردن اطلاعات انتخاب کننده رمزعبور برای این نوع خزشگر الزامی میباشد',
 
             'api_config.required' => 'پیکربندی API برای این نوع خزنده الزامی است.',
 
@@ -128,6 +135,8 @@ class CreateCrawlerRequest extends FormRequest
 
             'max_depth.prohibited' => 'عمق خزش فقط برای خزنده نوع seed مجاز است.',
             'link_filter_rules.prohibited' => 'قوانین فیلتر لینک فقط برای خزنده نوع seed مجاز است.',
+
+            'dynamic_limit.required' => 'انتخاب تعداد بارگیری های مجدد برای این نوع خزشگر الزامی میباشد'
         ];
     }
 }

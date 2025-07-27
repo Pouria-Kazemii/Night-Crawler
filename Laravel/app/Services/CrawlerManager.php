@@ -10,21 +10,16 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Models\CrawlerResult;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class CrawlerManager implements CrawlerManagerInterface
 {
-    private Crawler $crawler;
 
-    public function __construct(Crawler $crawler)
+    public function go(Crawler $crawler, int $retries = 0)
     {
-        return $this->crawler = $crawler;
-    }
-
-    public function go(int $retries = 0)
-    {
-        $urls = $this->getUrls();
-        $crawlerId = (string)$this->crawler->_id;
-        $payloadOptions = $this->getOptions();
+        $urls = getUrls($crawler);
+        $crawlerId = (string)$crawler->_id;
+        $payloadOptions = getOptions($crawler);
 
         // 1. Get available nodes sorted by latency (lowest first)
         $nodes = CrawlerNode::where('status', 'active')
@@ -35,6 +30,8 @@ class CrawlerManager implements CrawlerManagerInterface
         if ($nodes->isEmpty()) {
             throw new \Exception('No active crawler nodes available.');
         }
+
+        $crawler->update(['status' => 'active', 'last_run_at' => now()]);
 
         // 2. Split URLs into small chunks (e.g., 10 per chunk)
         $chunks = collect($urls)->chunk(ceil(count($urls) / $nodes->count()))->values();
@@ -74,14 +71,14 @@ class CrawlerManager implements CrawlerManagerInterface
     public function discernment(Request $request)
     {
         $validated = $request->validate([
-            'type' => ['required', Rule::in(['dynamic', 'seed', 'static', 'paginated', 'api', 'authernticated'])],
+            'type' => ['required', Rule::in(['dynamic', 'seed', 'static', 'paginated', 'api', 'authenticated'])],
             'original_url' => 'required',
             'final_url' => 'nullable',
             'content' => 'nullable',
             'error' => 'nullable',
             'is_last' => 'required|boolean',
             'status_code' => 'required|integer',
-            'meta' => 'required|array'
+            'meta' => 'required|array',
         ]);
 
         $jobId = $validated['meta']['job_id'];
@@ -95,12 +92,14 @@ class CrawlerManager implements CrawlerManagerInterface
 
             CrawlerResult::updateOrCreate(
                 [
-                    'final_url' => urldecode($validated['final_url']),
-                    'url' => $validated['original_url'],
+                    'encrypt_url' => hash('sha256' , $validated['final_url'])
                 ],
                 [
+                    'final_url' => urldecode($validated['final_url']),
+                    'url' => $validated['original_url'],
                     'job_id' => $jobId,
                     'content' => $content,
+                    'stats' => isset($validated['stats']) ? $validated['content'] : null
                 ]
             );
         }
@@ -158,112 +157,6 @@ class CrawlerManager implements CrawlerManagerInterface
 
                 Crawler::where('_id', $crawlerId)->update(['crawler_status' => $crawlerStatus]);
             }
-        }
-    }
-
-    private function getUrls(): array
-    {
-        $baseUrl = $this->crawler->base_url;
-        if ($this->crawler->start_urls[0] != '') {
-
-            $fullUrls = array_map(function ($path) use ($baseUrl) {
-                return $baseUrl . str_replace('\\', '', $path);
-            }, $this->crawler->start_urls);
-
-            return $fullUrls;
-        } elseif ($this->crawler->url_pattern != null) {
-
-            $start = (int) $this->crawler->range['start'];
-            $end = (int) $this->crawler->range['end'];
-
-            // Build URLs
-            $urls = [];
-            for ($i = $start; $i <= $end; $i++) {
-                $path = str_replace('{id}', $i, $this->crawler->url_pattern);
-                $urls[] = $baseUrl . $path;
-            }
-
-            return $urls;
-        } else {
-            return [$baseUrl];
-        }
-    }
-
-
-    private function getOptions()
-    {
-        switch ($this->crawler->crawler_type) {
-
-            case 'static';
-                return [
-                    'type' => $this->crawler->crawler_type,
-                    'options' => [
-                        'crawl_delay' => $this->crawler->crawl_delay != null ? $this->crawler->crawl_delay : 0,
-                        'selectors' => $this->crawler->selectors
-                    ]
-                ];
-                break;
-
-            case 'seed';
-                return [
-                    'type' => $this->crawler->crawler_type,
-                    'options' => [
-                        'crawl_delay' => $this->crawler->crawl_delay != null ? $this->crawler->crawl_delay : 0,
-                        'max_depth' => $this->crawler->max_depth != null ? $this->crawler->max_depth : 0,
-                        'link_filter_rules' => $this->crawler->link_filter_rules ?? null,
-                        'selector' => $this->crawler->selectors[0]['selector'] != 'all' ? $this->crawler->selectors[0]['selector'] : 'null' 
-                    ]
-                ];
-                break;
-
-            case 'dynamic';
-
-                return [
-                    'type' => $this->crawler->crawler_type,
-                    'options' => [
-                        'crawl_delay' => $this->crawler->crawl_delay != null ? $this->crawler->crawl_delay : 0,
-                        'selectors' => $this->crawler->selectors
-                    ]
-                ];
-                break;
-
-            case 'authenticated';
-                return [
-                    'type' => $this->crawler->crawler_type,
-                    'auth' => [
-                        'login_url' => $this->crawler->auth['login_url'],
-                        'credentials' => [
-                            'username' => $this->crawler->auth['username'],
-                            'password' => $this->crawler->auth['password'],
-                        ]
-                    ],
-                    'options' => [
-                        'crawl_delay' => $this->crawler->crawl_delay != null ? $this->crawler->crawl_delay : 0,
-                        'selectors' => $this->crawler->selectors
-                    ]
-                ];
-                break;
-
-            case 'api'; //TODO
-                return [
-                    'type' => $this->crawler->crawler_type,
-                    'options' => [
-                        'crawl_delay' => $this->crawler->crawl_delay != null ? $this->crawler->crawl_delay : 0,
-                    ]
-                ];
-                break;
-
-            case 'paginated';
-                return [
-                    'type' => $this->crawler->crawler_type,
-                    'next_selector' => $this->crawler->pagination_rule['next_page_selector'],
-                    'options' => [
-                        'crawl_delay' => $this->crawler->crawl_delay != null ? $this->crawler->crawl_delay : 0,
-                        'limit' => $this->crawler->pagination_rule['limit'] ?? 1,
-                        'selectors' => $this->crawler->selectors
-                    ]
-                ];
-                break;
         }
     }
 }

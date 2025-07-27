@@ -56,11 +56,13 @@ class CrawlerController extends Controller
 
     public function go(Crawler $crawler)
     {
-        $crawler->update(['status' => 'active', 'last_run_at' => now()]);
-        
-        $crawlManager = new CrawlerManager($crawler);
 
-        $crawlManager->go();
+        $crawlerManager = app(CrawlerManager::class);
+
+        $crawlerManager->go($crawler);
+
+        return redirect()->route('crawler.index')
+            ->with('status', 'خزش با موفقیت شروع شد ');
     }
 
 
@@ -78,7 +80,7 @@ class CrawlerController extends Controller
             }
         }
 
-        if (!empty($data['selectors'])) {
+        if (!empty($data['selectors']) and $data['selectors'] != null) {
             if (is_string($data['selectors'])) {
                 // Handle old comma-separated format
                 $selectors = array_map('trim', explode(',', $data['selectors']));

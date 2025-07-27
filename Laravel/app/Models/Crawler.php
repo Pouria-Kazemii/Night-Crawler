@@ -21,11 +21,12 @@ class Crawler extends EloquentModel
         'crawler_type',          // static | dynamic | paginated | authenticated | api | seed
         'base_url',              // string
         'start_urls',            // array
-        'url_pattern',           // string 
-        'range',                 // array 
+        'url_pattern',           // string
+        'range',                 // array
         'pagination_rule',       // array (JSON)
         'auth',                  // array (JSON)
         'api_config',            // array (JSON)
+        'dynamic_limit',         // integer
         'schedule',              // array (JSON)
         'max_depth',             // integer (only for seed)
         'link_filter_rules',     // array (only for seed)

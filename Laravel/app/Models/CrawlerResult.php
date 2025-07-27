@@ -19,6 +19,7 @@ class CrawlerResult extends EloquentModel
         'job_id',
         'final_url',
         'url',
-        'content'
+        'content',
+        'encrypt_url',
     ];
 }

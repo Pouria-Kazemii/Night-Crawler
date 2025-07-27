@@ -53,7 +53,7 @@
                         @enderror
                     </div>
 
-                    
+
                     <!-- Base URL -->
                     <div>
                         <label for="base_url" class="block text-sm font-bold text-gray-700">Base URL</label>
@@ -69,34 +69,39 @@
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
                         @error('start_urls') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
-                    
+
                     <!-- Selectors Section -->
                     <div class="mb-6">
+
+                    <div class="bg-yellow-100 border border-yellow-300 text-yellow-800 px-4 py-3 rounded-md mb-4 text-sm">
+                        ⚠️ <strong>نکته:</strong> اگر از خزشگر نوع seed استفاده میکنید توجه داشته باشید تنها از اولین مورد وارد شده در این بخش استفاده خواهد شد. بدین ترتیب ما باقی انتخابگرها بی تاثیر میباشند. همچنین وارد کردن این بخش برای خزشگر نوع Seed الزامی نمیباشد.
+                    </div>
+
                         <label class="block text-sm font-bold text-gray-700 mb-2">انتخاب کننده‌ها</label>
-                        
+
                         <div id="selectors-container">
                             @php
                                 $oldSelectors = old('selectors', [
                                     ['key' => 'title', 'selector' => '', 'full_html' => false],
                                 ]);
                             @endphp
-                            
+
                             @foreach($oldSelectors as $index => $selector)
                             <div class="selector-group grid grid-cols-12 gap-2 items-end mb-2">
                                 <div class="col-span-4">
                                     <label class="block text-xs text-gray-500 mb-1">کلید</label>
-                                    <input type="text" name="selectors[{{$index}}][key]" 
+                                    <input type="text" name="selectors[{{$index}}][key]"
                                         value="{{ $selector['key'] ?? '' }}"
                                         class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
-                                        placeholder="مثال: title" required>
+                                        placeholder="مثال: title" >
                                 </div>
-                                
+
                                 <div class="col-span-4">
                                     <label class="block text-xs text-gray-500 mb-1">سلکتور</label>
-                                    <input type="text" name="selectors[{{$index}}][selector]" 
+                                    <input type="text" name="selectors[{{$index}}][selector]"
                                         value="{{ $selector['selector'] ?? '' }}"
                                         class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
-                                        placeholder="مثال: h1.title" required>
+                                        placeholder="مثال: h1.title" >
                                 </div>
 
                                 <div class="col-span-3">
@@ -138,14 +143,14 @@
                             newGroup.innerHTML = `
                                 <div class="col-span-4">
                                     <label class="block text-xs text-gray-500 mb-1">کلید</label>
-                                    <input type="text" name="selectors[${selectorCount}][key]" 
+                                    <input type="text" name="selectors[${selectorCount}][key]"
                                         class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
                                         placeholder="مثال: title" required>
                                 </div>
 
                                 <div class="col-span-4">
                                     <label class="block text-xs text-gray-500 mb-1">سلکتور</label>
-                                    <input type="text" name="selectors[${selectorCount}][selector]" 
+                                    <input type="text" name="selectors[${selectorCount}][selector]"
                                         class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
                                         placeholder="مثال: h1.title" required>
                                 </div>
@@ -223,6 +228,14 @@
                         @error('pagination_rule.limit') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
 
+                    <!-- Pagination Config -->
+                    <div x-show="type === 'dynamic'">
+                        <label for="dynamic_limit" class="block text-sm font-bold text-gray-700">تعداد بارگیری های مجدد</label>
+                        <input type="number" name="dynamic_limit" id="dynamic_limit" value="{{ old('dynamic_limit') }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                        @error('dynamic_limit') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+                    </div>
+
 
                     <!-- Auth Fields -->
                     <div x-show="type === 'authenticated'">
@@ -240,6 +253,20 @@
                         <input type="password" name="auth[password]" value="{{ old('auth.password') }}"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
                         @error('auth.password') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+
+                        <label class="block text-sm font-bold text-gray-700 mt-3">اطلاعات انتخاب کننده نام کاربری</label>
+                        <input type="text" name="auth[username_selector]"
+                               value="{{ old('auth.username_selector') }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
+                               placeholder="html_tag[tag_attribute_name='tag_attribute_value'] برای مثال : input[name='login']">
+                        @error('auth.username_selector') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+
+                        <label class="block text-sm font-bold text-gray-700 mt-3">اطلاعات انتخاب کننده رمزعبور</label>
+                        <input type="text" name="auth[password_selector]"
+                               value="{{ old('auth.password_selector') }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
+                               placeholder="html_tag[tag_attribute_name='tag_attribute_value'] برای مثال : input[name='password']">
+                        @error('auth.password_selector') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- API Config --> <!-- TODO -->

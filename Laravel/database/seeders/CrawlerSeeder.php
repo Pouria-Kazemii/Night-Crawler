@@ -12,136 +12,259 @@ class CrawlerSeeder extends Seeder
         $crawlers = [
             // Static
             [
-                'title' => 'نمونه خزنده static',
-                'description' => 'این یک نمونه خزنده از نوع static است.',
+                'title' => 'سی بوک',
+                'description' => 'نویسندگان آیدی 178840 تا ایدی 178890',
                 'crawler_status' => 'active',
                 'crawler_type' => 'static',
-                'base_url' => 'https://developer.mozilla.org',
-                'start_urls' => ["https://developer.mozilla.org/en-US/docs/Web/HTML"],
+                'base_url' => 'https://www.30book.com',
+                'url_pattern' => '/book/{id}',
+                'range' => [
+                    'start' => 178840,
+                    'end' => 178890
+                ],
+                'pagination_rule' => [
+                    'next_page_selector' => null,
+                    'limit' => null,
+                ],
+                'auth' => [
+                    'login_url' => null,
+                    'username' => null,
+                    'password' => null
+                ],
+                'api_config' => [
+                    'method' => null,
+                    'token' => null
+                ],
                 'selectors' => [
-                    'title' => 'h1.title',
-                    'content' => '.content > p'
+                    [
+                        'key' => 'creators',
+                        'selector' => 'div.row.gx-2.align-items-center.mt-4 a.product-main-link',
+                        'full_html' => false
+                    ]
+
                 ],
                 'schedule' => [
                     'frequency' => 'daily',
                     'time' => '02:00'
                 ],
-                'max_depth' => 3,
-                'link_filter_rules' => ['*.pdf', '*logout*'],
-                'crawl_delay' => 1,
+                'start_urls' => [""],
+                'crawl_delay' => '1',
             ],
 
             // Dynamic
             [
-                'title' => 'نمونه خزنده dynamic',
-                'description' => 'دریافت محتوا با رندر JS از دیجی‌کالا.',
+                'title' => 'دیجی کالا',
+                'description' => 'محصولات با تگ gaming set',
                 'crawler_status' => 'active',
                 'crawler_type' => 'dynamic',
                 'base_url' => 'https://www.digikala.com',
-                'start_urls' => ['https://www.digikala.com/search/?q=iphone'],
+                'url_pattern' => null,
+                'range' => [
+                    'start' => null,
+                    'end' => null
+                ],
+                'pagination_rule' => [
+                    'next_page_selector' => null,
+                    'limit' => null,
+                ],
+                'auth' => [
+                    'login_url' => null,
+                    'username' => null,
+                    'password' => null
+                ],
+                'api_config' => [
+                    'method' => null,
+                    'token' => null
+                ],
                 'selectors' => [
-                    'title' => 'h1.c-product__title',
-                    'price' => '.c-price__value'
+                    [
+                        'key' => 'title',
+                        'selector' => 'h3.ellipsis-2.text-body2-strong.text-neutral-700.styles_VerticalProductCard__productTitle__6zjjN',
+                        'full_html' => false
+                    ]
+
                 ],
                 'schedule' => [
                     'frequency' => 'daily',
-                    'time' => '03:00'
+                    'time' => '02:00'
                 ],
-                'max_depth' => 1,
-                'link_filter_rules' => [],
-                'crawl_delay' => 1,
+                'start_urls' => ["/tags/gaming-set/"],
+                'crawl_delay' => '1',
             ],
 
             // Paginated
             [
-                'title' => 'نمونه خزنده paginated',
-                'description' => 'خزنده صفحات بلاگ وردپرس',
-                'crawler_status' => 'active',
+                'title' => 'فروشگاه کفش',
+                'description' => 'سه صفحه اول فروشگاه',
+                'crawler_status' => 'static',
                 'crawler_type' => 'paginated',
-                'base_url' => 'https://wordpress.com/blog',
-                'start_urls' => ['https://wordpress.com/blog'],
-                'selectors' => [
-                    'title' => 'h2.entry-title',
-                    'content' => '.entry-content p'
+                'base_url' => 'https://amiransport.com',
+                'url_pattern' => null,
+                'range' => [
+                    'start' => null,
+                    'end' => null
                 ],
                 'pagination_rule' => [
-                    'selector' => '.pagination-next a',
-                    'limit' => 5
+                    'next_page_selector' => "ul.page-numbers a.next.page-numbers",
+                    'limit' => "3",
+                ],
+                'auth' => [
+                    'login_url' => null,
+                    'username' => null,
+                    'password' => null
+                ],
+                'api_config' => [
+                    'method' => null,
+                    'token' => null
+                ],
+                'selectors' => [
+                    [
+                        'key' => 'price',
+                        'selector' => 'div.product-element-bottom div.wrap-price',
+                        'full_html' => true
+                    ],
+                    [
+                        'key' => 'title',
+                        'selector' => 'div.product-element-bottom h3.wd-entities-title',
+                        'full_html' => false
+                    ]
+
                 ],
                 'schedule' => [
-                    'frequency' => 'daily',
-                    'time' => '04:00'
+                    'frequency' => null,
+                    'time' => null
                 ],
-                'max_depth' => 2,
-                'link_filter_rules' => [],
-                'crawl_delay' => 1,
+                'start_urls' => ["/shop/page/1/"],
+                'crawl_delay' => '0',
             ],
+
 
             // Authenticated
             [
-                'title' => 'نمونه خزنده authenticated',
-                'description' => 'ورود به داشبورد و دریافت اطلاعات پروفایل',
+                'title' => 'گیت هاب',
+                'description' => 'گرفتن بیو صفحه گیت هاب',
                 'crawler_status' => 'active',
                 'crawler_type' => 'authenticated',
                 'base_url' => 'https://github.com',
-                'start_urls' => ['https://github.com/settings/profile'],
-                'selectors' => [
-                    'username' => '#user_profile_name',
-                    'bio' => '#user_profile_bio'
+                'url_pattern' => null,
+                'range' => [
+                    'start' => null,
+                    'end' => null
+                ],
+                'pagination_rule' => [
+                    'next_page_selector' => null,
+                    'limit' => null,
                 ],
                 'auth' => [
                     'login_url' => 'https://github.com/login',
-                    'username_selector' => '#login_field',
-                    'password_selector' => '#password',
-                    'submit_selector' => "input[type='submit']",
-                    'credentials' => [
-                        'username' => 'myuser',
-                        'password' => 'mypassword'
+                    'username' => 'user_name',
+                    'password' => 'password'
+                ],
+                'api_config' => [
+                    'method' => null,
+                    'token' => null
+                ],
+                'selectors' => [
+                    [
+                        'key' => 'bio',
+                        'selector' => 'form-control form-control user-profile-bio-field js-length-limited-input',
+                        'full_html' => false
                     ]
+
                 ],
                 'schedule' => [
                     'frequency' => 'daily',
-                    'time' => '05:00'
+                    'time' => '02:00'
                 ],
-                'max_depth' => 1,
-                'crawl_delay' => 1,
+                'start_urls' => ["/settings/profile"],
+                'crawl_delay' => '1',
             ],
 
+            //TODO
             // API
-            [
-                'title' => 'نمونه خزنده API',
-                'description' => 'دریافت اخبار نیویورک تایمز با API',
-                'crawler_status' => 'active',
-                'crawler_type' => 'api',
-                'base_url' => 'https://api.nytimes.com',
-                'start_urls' => ['https://api.nytimes.com/svc/topstories/v2/home.json?api-key=DEMO_KEY'],
-                'api_config' => [
-                    'headers' => [
-                        'Accept' => 'application/json'
-                    ],
-                    'extract_path' => 'results[*].title'
-                ],
-                'schedule' => [
-                    'frequency' => 'hourly',
-                    'time' => '00:30'
-                ],
-            ],
+            // [
+            //     'title' => 'نویسندگان محصولات سی بوک',
+            //     'description' => 'ایدی 178840 تا ایدی 178890',
+            //     'crawler_status' => 'active',
+            //     'crawler_type' => 'static',
+            //     'base_url' => 'https://www.30book.com/book/178840',
+            //     'url_pattern' => null,
+            //     'range' => [
+            //         'start' => null,
+            //         'end' => null
+            //     ],
+            //     'pagination_rule' => [
+            //         'next_page_selector' => null,
+            //         'limit' => null,
+            //     ],
+            //     'auth' => [
+            //         'login_url' => null,
+            //         'username' => null,
+            //         'password' => null
+            //     ],
+            //     'api_config' => [
+            //         'method' => null,
+            //         'token' => null
+            //     ],
+            //     'selectors' => [
+            //         [
+            //             'key' => 'creators',
+            //             'selector' => 'div.row.gx-2.align-items-center.mt-4 a.product-main-link',
+            //             'full_html' => false
+            //         ]
+
+            //     ],
+            //     'schedule' => [
+            //         'frequency' => 'daily',
+            //         'time' => '02:00'
+            //     ],
+            //     'start_urls' => [""],
+            //     'max_depth' => '0',
+            //     'link_filter_rules' => [""],
+            //     'crawl_delay' => '1',
+            // ],
 
             // Seed
             [
-                'title' => 'جمع‌آوری لینک‌های دانشگاه شریف',
-                'description' => 'لینک‌های عمومی سایت sharif.edu برای خوراک',
+                'title' => 'تابناک',
+                'description' => 'کرول جدیدترن اخبار اقتصادی و دنیا	',
                 'crawler_status' => 'active',
                 'crawler_type' => 'seed',
-                'base_url' => 'https://sharif.edu',
-                'start_urls' => ['https://sharif.edu'],
-                'link_filter_rules' => ['*mailto*', '*#*', '*login*'],
-                'schedule' => [
-                    'frequency' => 'weekly',
-                    'time' => '01:00'
+                'base_url' => 'https://www.tabnak.ir',
+                'url_pattern' => null,
+                'range' => [
+                    'start' => null,
+                    'end' => null
                 ],
-                'max_depth' => 1,
-                'crawl_delay' => 1,
+                'pagination_rule' => [
+                    'next_page_selector' => null,
+                    'limit' => null,
+                ],
+                'auth' => [
+                    'login_url' => null,
+                    'username' => null,
+                    'password' => null
+                ],
+                'api_config' => [
+                    'method' => null,
+                    'token' => null
+                ],
+                'selectors' => [
+                    [
+                        'key' => 'search',
+                        'selector' => 'div#latestNews',
+                        'full_html' => false
+                    ]
+
+                ],
+                'schedule' => [
+                    'frequency' => 'daily',
+                    'time' => '02:00'
+                ],
+                'start_urls' => ["/fa/world","/fa/economic"],
+                'max_depth' => '0',
+                'link_filter_rules' => ["/news"],
+                'crawl_delay' => '1',
             ],
         ];
 
