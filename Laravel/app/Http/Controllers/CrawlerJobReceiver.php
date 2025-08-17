@@ -4,11 +4,11 @@ namespace App\Models;
 
 use MongoDB\Laravel\Eloquent\Model as EloquentModel;
 
-class CrawlerJob extends EloquentModel
+class CrawlerJobReceiver extends EloquentModel
 {
     protected $connection = 'mongodb';
 
-    protected string $collection = 'crawler_jobs';
+    protected string $collection = 'crawler_job_receivers';
 
     public $timestamps = true;
 
@@ -16,10 +16,10 @@ class CrawlerJob extends EloquentModel
 
 
     protected $fillable = [
-        'crawler_id',
+        'crawler_sender_id',
         'node_id',
         'urls',
-        'status',
+        'status',               // success || running || failed
         'started_at',
         'completed_at',
         'retries',
@@ -36,6 +36,11 @@ class CrawlerJob extends EloquentModel
 
     public function crawler()
     {
-        return $this->belongsTo(Crawler::class , 'crawler_id' , '_id');
+        return $this->belongsTo(Crawler::class, 'crawler_id', '_id');
+    }
+
+    public function crawlerResults()
+    {
+        return $this->hasMany(CrawlerResult::class, 'job_id', '_id');
     }
 }

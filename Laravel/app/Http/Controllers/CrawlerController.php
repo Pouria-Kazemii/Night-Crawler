@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\CrawlerTypes;
 use App\Http\Requests\Crawler\CreateCrawlerRequest;
 use App\Http\Requests\Crawler\UpdateCrawlerRequest;
 use App\Models\Crawler;
 use App\Services\CrawlerManager;
+use App\Services\CreateNodeRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -20,7 +22,9 @@ class CrawlerController extends Controller
 
     public function create(): View
     {
-        return view('crawler.create');
+        $crawlerTypes = CrawlerTypes::all();
+
+        return view('crawler.create' , compact('crawlerTypes'));
     }
 
     public function store(CreateCrawlerRequest $request): RedirectResponse
@@ -34,7 +38,9 @@ class CrawlerController extends Controller
 
     public function edit(Crawler $crawler): View
     {
-        return view('crawler.edit', compact('crawler'));
+        $crawlerTypes = CrawlerTypes::all();
+        
+        return view('crawler.edit', compact('crawler','crawlerTypes'));
     }
 
     public function update(Crawler $crawler, UpdateCrawlerRequest $request): RedirectResponse
@@ -54,10 +60,10 @@ class CrawlerController extends Controller
             ->with('status', 'خزشگر با موفقیت حذف شد');
     }
 
-    public function go(Crawler $crawler)
+    public function go(Crawler $crawler): RedirectResponse
     {
 
-        $crawlerManager = app(CrawlerManager::class);
+        $crawlerManager = app(CreateNodeRequest::class);
 
         $crawlerManager->go($crawler);
 
@@ -65,10 +71,16 @@ class CrawlerController extends Controller
             ->with('status', 'خزش با موفقیت شروع شد ');
     }
 
+    public function showResults(Crawler $crawler)
+    {
+        
+
+    }
+
 
     private function normalizeCrawlerInput(array $data): array
     {
-        foreach (['pagination_rule', 'auth', 'api_config'] as $field) {
+        foreach (['pagination_rule', 'auth', 'api_config' , 'two_step'] as $field) {
             if (!empty($data[$field]) && is_string($data[$field])) {
                 $data[$field] = json_decode($data[$field], true);
             }

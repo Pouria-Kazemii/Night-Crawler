@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\CrawlerNode;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class CrawlerNodeSeeder extends Seeder
@@ -13,21 +12,30 @@ class CrawlerNodeSeeder extends Seeder
      */
     public function run(): void
     {
-        $protocols = ['http', 'https', 'socks5'];
-        $statuses = ['active', 'inactive', 'banned', 'down'];
 
-        for ($i = 0; $i < 100; $i++) {
-            CrawlerNode::create([
-                'name' => 'Node ' . ($i + 1),
-                'ip_address' => fake()->ipv4(),
-                'port' => fake()->numberBetween(8000, 9000),
-                'protocol' => fake()->randomElement($protocols),
-                'status' => fake()->randomElement($statuses),
+        CrawlerNode::insert([
+            [
+                'name' => 'localhost 1',
+                'ip_address' => '127.0.0.1',
+                'port' => 5000,
+                'protocol' => 'http',
+                'status' => 'active',
                 'last_used_at' => now()->subMinutes(fake()->numberBetween(1, 1000)),
-                'is_verifyed' => fake()->boolean(),
+                'is_verifyed' => true,
                 'location' => fake()->country(),
                 'latency' => fake()->randomFloat(2, 10, 500),
-            ]);
-        }
+            ],
+            [
+                'name' => 'localhost 2',
+                'ip_address' => '127.0.0.1',
+                'port' => 5001,
+                'protocol' => 'http',
+                'status' => 'active',
+                'last_used_at' => now()->subMinutes(fake()->numberBetween(1, 1000)),
+                'is_verifyed' => true,
+                'location' => fake()->country(),
+                'latency' => fake()->randomFloat(2, 10, 500),
+            ]
+        ]);
     }
 }

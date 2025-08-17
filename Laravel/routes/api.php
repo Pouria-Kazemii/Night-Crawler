@@ -1,14 +1,12 @@
 <?php
 
 use App\Http\Middleware\VerifyCrawlerToken;
-use App\Services\CrawlerManager;
+use App\Jobs\ProcessCrawledResultJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/crawled-result' , function(Request $request) {
+Route::post('/crawled-result', function (Request $request) {
 
-    $crawlerManager = app(CrawlerManager::class);
-    
-    $crawlerManager->discernment($request);
+    ProcessCrawledResultJob::dispatch($request->all())->onConnection('crawler-receive');
 
 })->middleware(VerifyCrawlerToken::class);

@@ -2,11 +2,16 @@
 
 namespace App\Http\Requests\Crawler;
 
+use App\Constants\CrawlerTypes;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class CreateCrawlerRequest extends FormRequest
 {
+    private string $type;
+    private string $two_step_first;
+    private string $two_step_second;
+
     public function authorize(): bool
     {
         return true;
@@ -18,12 +23,16 @@ class CreateCrawlerRequest extends FormRequest
             'auth' => $this->decodeJsonField('auth'),
             'api_config' => $this->decodeJsonField('api_config'),
             'pagination_rule' => $this->decodeJsonField('pagination_rule'),
+            'two_step' => $this->decodeJsonField('two_step')
         ]);
 
-        $type = $this->input('crawler_type');
+        $this->type = $this->input('crawler_type');
 
-        if ($type !== 'seed') {
-            $this->request->remove('max_depth');
+        $this->two_step_first  = $this->input('two_step')['first'] ?? 'null';
+
+        $this->two_step_second = $this->input('two_step')['second'] ?? 'null';
+
+        if (!$this->check(['seed'])) {
             $this->request->remove('link_filter_rules');
         }
     }
@@ -40,52 +49,54 @@ class CreateCrawlerRequest extends FormRequest
 
     public function rules(): array
     {
-        $type = $this->input('crawler_type');
 
         return [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'crawler_status' => ['required', Rule::in(['active', 'paused', 'completed', 'error'])],
-            'crawler_type' => ['required', Rule::in(['static', 'dynamic', 'paginated', 'authenticated', 'api', 'seed'])],
+            'crawler_status' => ['required', Rule::in(['active', 'paused', 'completed', 'error' , 'running' , 'first_step_done'])],
+            'crawler_type' => ['required', Rule::in(CrawlerTypes::ALL_STEP)],
             'base_url' => ['required', 'url'],
 
             'start_urls' => ['nullable', 'array'],
-            'start_urls.*' => ['nullable','string'],
+            'start_urls.*' => ['nullable', 'string'],
 
             'url_pattern' => ['nullable', 'string'],
             'range.start' => ['nullable', 'integer', 'min:1'],
             'range.end' => ['nullable', 'integer', 'min:1'],
 
-            'pagination_rule' => $type === 'paginated' ? ['required', 'array'] : ['nullable', 'array'],
-            'pagination_rule.next_page_selector'=> $type === 'paginated' ? ['required', 'string'] : ['nullable', 'string'],
+            'pagination_rule' => $this->check(['paginated']) ? ['required', 'array'] : ['nullable', 'array'],
+            'pagination_rule.next_page_selector' => $this->check(['paginated']) ? ['required', 'string'] : ['nullable', 'string'],
             'pagination_rule.limit' =>   ['nullable', 'integer'],
 
-            'auth' => $type === 'authenticated' ? ['required', 'array'] : ['nullable', 'array'],
-            'auth.login_url' => $type === 'authenticated' ? ['required', 'url'] : ['nullable', 'url'],
-            'auth.username' => $type === 'authenticated' ? ['required'] : ['nullable'],
-            'auth.password' => $type === 'authenticated' ? ['required'] : ['nullable'],
-            'auth.username_selector' => $type === 'authenticated' ? ['required'] : ['nullable'],
-            'auth.password_selector' => $type === 'authenticated' ? ['required'] : ['nullable'],
+            'auth' => $this->check(['authenticated']) ? ['required', 'array'] : ['nullable', 'array'],
+            'auth.login_url' => $this->check(['authenticated']) ? ['required', 'url'] : ['nullable', 'url'],
+            'auth.username' => $this->check(['authenticated']) ? ['required'] : ['nullable'],
+            'auth.password' => $this->check(['authenticated']) ? ['required'] : ['nullable'],
+            'auth.username_selector' => $this->check(['authenticated']) ? ['required'] : ['nullable'],
+            'auth.password_selector' => $this->check(['authenticated']) ? ['required'] : ['nullable'],
 
 
-            'api_config' => $type === 'api' ? ['required', 'array'] : ['nullable', 'array'],//TODO
+            'api_config' => $this->check(['api']) ? ['required', 'array'] : ['nullable', 'array'], //TODO
 
-            'dynamic_limit' => $type ==='dynamic' ? ['required' , 'integer'] : ['nullable' , 'integer'] ,
+            'dynamic_limit' => $this->check(['dynamic']) ? ['required', 'integer'] : ['nullable', 'integer'],
 
-            'selectors' => ($type === 'dynamic' || $type === 'static' || $type === 'paginated' || $type === 'authenticated')
-            ? ['required', 'array']
-            : ['nullable', 'array'],
+            'selectors' => $this->check(CrawlerTypes::SELECTOR)
+                ? ['required', 'array']
+                : ['nullable', 'array'],
 
 
-            'schedule' => ['nullable', 'array'],
-            'schedule.frequency' => ['nullable', 'string'],
-            'schedule.time' => ['nullable', 'string'],
+            'link_selector' => ['nullable', 'string'],
+
+            'two_step' => $this->check(['two_step']) ? ['required', 'array'] : ['nullable', 'array'],
+            'two_step.first' => $this->check(['two_step']) ? ['required', Rule::in(CrawlerTypes::FIRST_STEP)] : ['nullable', Rule::in(CrawlerTypes::FIRST_STEP)],
+            'two_step.second' => $this->check(['two_step']) ? ['required', Rule::in(CrawlerTypes::SECOND_STEP)] : ['nullable', Rule::in(CrawlerTypes::SECOND_STEP)],
+
+            'schedule' => ['nullable', 'integer'],
 
             'crawl_delay' => ['nullable', 'integer', 'min:0'],
 
-            'max_depth' => $type === 'seed' ? ['nullable', 'integer', 'min:0'] : ['prohibited'],
-            'link_filter_rules' => $type === 'seed' ? ['nullable', 'array'] : ['prohibited'],
-            'link_filter_rules.*' => ['nullable' , 'string'],
+            'link_filter_rules' => $this->check(['seed']) ? ['nullable', 'array'] : ['prohibited'],
+            'link_filter_rules.*' => ['nullable', 'string'],
         ];
     }
 
@@ -94,7 +105,7 @@ class CreateCrawlerRequest extends FormRequest
         $validator->after(function ($validator) {
             $hasUrlPattern = filled($this->input('url_pattern')) && filled($this->input('range.start')) && filled($this->input('range.end'));
 
-            if ($this->input('start_urls')[0]!=null && $this->input('url_pattern')!=null) {
+            if ($this->input('start_urls')[0] != null && $this->input('url_pattern') != null) {
                 $validator->errors()->add('start_urls', 'نمی‌توانید هم آدرس‌های شروع و هم الگوی URL را وارد کنید.');
                 $validator->errors()->add('url_pattern', 'نمی‌توانید هم الگوی URL و هم آدرس‌های شروع را وارد کنید.');
             }
@@ -133,10 +144,17 @@ class CreateCrawlerRequest extends FormRequest
             'selectors.*.selector.required' => 'مقدار انتخاب کننده الزامی است',
 
 
-            'max_depth.prohibited' => 'عمق خزش فقط برای خزنده نوع seed مجاز است.',
             'link_filter_rules.prohibited' => 'قوانین فیلتر لینک فقط برای خزنده نوع seed مجاز است.',
 
-            'dynamic_limit.required' => 'انتخاب تعداد بارگیری های مجدد برای این نوع خزشگر الزامی میباشد'
+            'dynamic_limit.required' => 'انتخاب تعداد بارگیری های مجدد برای این نوع خزشگر الزامی میباشد',
+
+            'two_step.first.required' => 'انتخاب مرحله اول برای این نوع از خزشگر الزامی است',
+            'two_step.second.required' => 'انتخاب مرحله دوم برای این نوع از خزشگر الزامی است'
         ];
+    }
+
+    private function check(array $types): bool
+    {
+        return !empty(array_intersect([$this->type, $this->two_step_first, $this->two_step_second], $types));
     }
 }

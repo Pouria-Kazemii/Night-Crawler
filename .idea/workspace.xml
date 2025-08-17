@@ -5,25 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="58ec31c2-d8ca-42fe-9357-f6fabe6c3299" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Laravel/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/.env.example" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Laravel/app/Contracts/CrawlerManagerInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/app/Contracts/CrawlerManagerInterface.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Laravel/app/Http/Controllers/CrawlerController.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/app/Http/Controllers/CrawlerController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Laravel/app/Http/Middleware/VerifyCrawlerToken.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/app/Http/Middleware/VerifyCrawlerToken.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Laravel/app/Http/Requests/Crawler/CreateCrawlerRequest.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/app/Http/Requests/Crawler/CreateCrawlerRequest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/app/Http/Requests/Crawler/UpdateCrawlerRequest.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/app/Http/Requests/Crawler/UpdateCrawlerRequest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Laravel/app/Models/Crawler.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/app/Models/Crawler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/app/Models/CrawlerJob.php" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Laravel/app/Models/CrawlerResult.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/app/Models/CrawlerResult.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Laravel/app/Services/CrawlerManager.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/app/Services/CrawlerManager.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Laravel/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/app/helpers.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/app/helpers.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Laravel/database/seeders/CrawlerSeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/database/seeders/CrawlerSeeder.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Laravel/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Laravel/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Laravel/public/favicon.ico" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Laravel/resources/views/crawler/create.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/resources/views/crawler/create.blade.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Laravel/resources/views/crawler/edit.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/resources/views/crawler/edit.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Laravel/resources/views/layouts/app.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/resources/views/layouts/app.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/routes/api.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Laravel/routes/console.php" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/routes/console.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -219,6 +215,8 @@
       <workItem from="1753524727786" duration="251000" />
       <workItem from="1753525075759" duration="6409000" />
       <workItem from="1753596825262" duration="9440000" />
+      <workItem from="1753695934249" duration="999000" />
+      <workItem from="1754218817539" duration="99000" />
     </task>
     <servers />
   </component>

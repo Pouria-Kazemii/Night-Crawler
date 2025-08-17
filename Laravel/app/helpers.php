@@ -32,15 +32,19 @@ if (!function_exists('getUrls')) {
     }
 }
 
-if (!function_exists('grtOptions')) {
+if (!function_exists('getOptions')) {
 
-    function getOptions(Crawler $crawler)
+    function getOptions(Crawler $crawler , $type = null)
     {
-        switch ($crawler->crawler_type) {
+        if($type === null ){
+            $type = $crawler->crawler_type;
+        }
+
+        switch ($type) {
 
             case 'static';
                 return [
-                    'type' => $crawler->crawler_type,
+                    'type' => $type,
                     'options' => [
                         'crawl_delay' => $crawler->crawl_delay != null ? $crawler->crawl_delay : 0,
                         'selectors' => $crawler->selectors
@@ -50,12 +54,11 @@ if (!function_exists('grtOptions')) {
 
             case 'seed';
                 return [
-                    'type' => $crawler->crawler_type,
+                    'type' => $type,
                     'options' => [
                         'crawl_delay' => $crawler->crawl_delay != null ? $crawler->crawl_delay : 0,
-                        'max_depth' => $crawler->max_depth != null ? $crawler->max_depth : 0,
                         'link_filter_rules' => $crawler->link_filter_rules ?? null,
-                        'selector' => $crawler->selectors != [] ? $crawler->selectors[0]['selector'] : 'null'
+                        'selector' => $crawler->link_selector != null ? $crawler->link_selector : 'null'
                     ]
                 ];
                 break;
@@ -63,7 +66,7 @@ if (!function_exists('grtOptions')) {
             case 'dynamic';
 
                 return [
-                    'type' => $crawler->crawler_type,
+                    'type' => $type,
                     'options' => [
                         'crawl_delay' => $crawler->crawl_delay != null ? $crawler->crawl_delay : 0,
                         'selectors' => $crawler->selectors,
@@ -74,7 +77,7 @@ if (!function_exists('grtOptions')) {
 
             case 'authenticated';
                 return [
-                    'type' => $crawler->crawler_type,
+                    'type' => $type,
                     'auth' => [
                         'login_url' => $crawler->auth['login_url'],
                         'credentials' => [
@@ -93,7 +96,7 @@ if (!function_exists('grtOptions')) {
 
             case 'api'; //TODO
                 return [
-                    'type' => $crawler->crawler_type,
+                    'type' => $type,
                     'options' => [
                         'crawl_delay' => $crawler->crawl_delay != null ? $crawler->crawl_delay : 0,
                     ]
@@ -102,7 +105,7 @@ if (!function_exists('grtOptions')) {
 
             case 'paginated';
                 return [
-                    'type' => $crawler->crawler_type,
+                    'type' => $type,
                     'next_page_selector' => $crawler->pagination_rule['next_page_selector'],
                     'options' => [
                         'crawl_delay' => $crawler->crawl_delay != null ? $crawler->crawl_delay : 0,

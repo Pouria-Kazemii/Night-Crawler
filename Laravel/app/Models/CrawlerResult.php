@@ -16,10 +16,18 @@ class CrawlerResult extends EloquentModel
 
 
     protected $fillable = [
-        'job_id',
+        'crawler_job_sender_id',
+        'crawler_id',
         'final_url',
         'url',
         'content',
         'encrypt_url',
+        'content_changed',
+        'content_dif'
     ];
+
+    public function crawlerJobSender()
+    {
+        return $this->belongsTo(CrawlerJobSender::class , 'crawler_job_sender_id','_id');
+    }
 }
