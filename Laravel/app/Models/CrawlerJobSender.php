@@ -27,20 +27,30 @@ class CrawlerJobSender extends EloquentModel
         'last_used_at',
         'started_at',
         'completed_at',
+        'counts'
     ];
 
 
-    protected $casts = [
-        'failed_urls' => 'array',
-        'urls' => 'array',
-        'started_at' => 'datetime',
-        'completed_at' => 'datetime',
-        'last_used_at' => 'datetime'
-    ];
+    public function casts(): array
+    {
+        return [
+            'failed_urls' => 'array',
+            'counts' => 'array',
+            'urls' => 'array',
+            'started_at' => 'datetime',
+            'completed_at' => 'datetime',
+            'last_used_at' => 'datetime'
+        ];
+    }
 
     public function scopeGetLastQueued($query, $node_id)
     {
-        return $query->where('node_id', $node_id)->where('status', 'queued')->orderBy('created_at');
+        return $query->where('node_id', $node_id)->where('status', 'queued')->orderBy('updated_at');
+    }
+
+    public function lastResult()
+    {
+        return $this->hasOne(CrawlerResult::class)->latestOfMany();
     }
 
     public function crawler()
@@ -48,13 +58,13 @@ class CrawlerJobSender extends EloquentModel
         return $this->belongsTo(Crawler::class, 'crawler_id', '_id');
     }
 
+    public function crawlerResults()
+    {
+        return $this->hasMany(CrawlerResult::class, 'crawler_job_sender_id', '_id');
+    }
+
     public function crawlerNode()
     {
         return $this->belongsTo(CrawlerNode::class, 'node_id', '_id');
-    }
-
-    public function crawlerResult()
-    {
-        return $this->hasMany(CrawlerResult::class, 'crawler_id');
     }
 }

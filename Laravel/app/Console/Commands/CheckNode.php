@@ -3,34 +3,36 @@
 namespace App\Console\Commands;
 
 use App\Models\CrawlerNode;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 
-class AllCommands extends Command
+class CheckNode extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'app:all-commands';
+    protected $signature = 'app:check-nodes';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'This is a command for run all other commands';
+    protected $description = 'This is a command check accessibility nodes';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        foreach (CrawlerNode::where('status' , 'down') as $node) {
+        $nodes = CrawlerNode::where('last_used_at', '<=', Carbon::now('UTC')->addMinutes(-5))->get();
+        foreach ($nodes as $node) {
             try {
                 $start = microtime(true); // Start measuring time
+
                 $response = Http::timeout(2)->get("http://{$node->ip_address}:{$node->port}/health");
 
                 $latency = round((microtime(true) - $start) * 1000); // in ms
@@ -45,20 +47,16 @@ class AllCommands extends Command
                     $node->update([
                         'status' => 'down',
                         'latency' => null,
+                        'last_used_at' => now(),
                     ]);
                 }
             } catch (\Exception $e) {
                 $node->update([
                     'status' => 'down',
                     'latency' => null,
+                    'last_used_at' => now(),
                 ]);
             }
         }
-
-        Artisan::call('app:check-failed-job');
-
-        Artisan::call('app:check-running-job');
-
-        Artisan::call('app:check-crawler-schedule');
     }
 }

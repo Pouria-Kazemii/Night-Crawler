@@ -30,4 +30,10 @@ class CrawlerResult extends EloquentModel
     {
         return $this->belongsTo(CrawlerJobSender::class , 'crawler_job_sender_id','_id');
     }
+
+    public function crawler()
+    {
+        return $this->belongsTo(Crawler::class , 'crawler_id' , '_id');
+    }
+
 }

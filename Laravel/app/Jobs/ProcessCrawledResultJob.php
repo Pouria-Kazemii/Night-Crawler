@@ -5,12 +5,14 @@ namespace App\Jobs;
 use App\Models\Crawler;
 use App\Models\CrawlerJobSender;
 use App\Models\CrawlerResult;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -43,17 +45,36 @@ class ProcessCrawledResultJob implements ShouldQueue
 
         // ✅ Handle successful result
         if ($validated['status_code'] === 200) {
+
+            $successKey = $jobId . '_success_count';
+            $successCount = Cache::get($successKey, 0);
+            $successCount = $successCount + 1;
+            Cache::forever($successKey, $successCount);
+
             $content = $validated['type'] === 'seed'
                 ? array_map('urldecode', $validated['content'] ?? [])
                 : $validated['content'];
 
-            $existing = CrawlerResult::where('encrypt_url', hash('sha256', $validated['final_url']))->first();
+            $existing = CrawlerResult::where('encrypt_url', hash('sha256', $validated['final_url']))
+                ->where('crawler_id', $crawlerId)
+                ->first();
 
             if ($existing) {
+
+                $repeatedKey = $jobId . '_repeated_count';
+                $repeatedCount = Cache::get($repeatedKey, 0);
+                $repeatedCount = $repeatedCount + 1;
+                Cache::forever($repeatedKey, $repeatedCount);
 
                 $contentChanged = $existing->content !== $content;
 
                 if ($contentChanged) {
+
+                    $changedKey = $jobId . '_changed_count';
+                    $changedCount = Cache::get($changedKey, 0);
+                    $changedCount = $changedCount + 1;
+                    Cache::forever($changedKey, $changedCount);
+
 
                     $updateData = [
                         'crawler_job_sender_id' => $jobId,
@@ -74,6 +95,12 @@ class ProcessCrawledResultJob implements ShouldQueue
                     ]);
                 }
             } else {
+
+                $newKey = $jobId . '_new_count';
+                $newCount = Cache::get($newKey, 0);
+                $newCount = $newCount + 1;
+                Cache::forever($newKey, $newCount);
+
                 CrawlerResult::create([
                     'encrypt_url' => hash('sha256', $validated['final_url']),
                     'crawler_id' => $crawlerId,
@@ -93,10 +120,10 @@ class ProcessCrawledResultJob implements ShouldQueue
 
             $failedUrls = Cache::get($failedKey, []);
             $failedUrls[] = [
-                $validated['original_url'] => [
-                    'error' => $validated['error'],
-                    'status_code' => $validated['status_code']
-                ]
+                'url' => $validated['original_url'],
+                'error' => $validated['error'],
+                'status_code' => $validated['status_code']
+
             ];
             Cache::forever($failedKey, $failedUrls);
             Cache::forever($statusKey, 'failed');
@@ -109,12 +136,31 @@ class ProcessCrawledResultJob implements ShouldQueue
 
             $statusKey = $jobId . '_status';
             $failedKey = $jobId . '_failed_urls';
+            $successKey = $jobId . '_success_count';
+            $repeatedKey = $jobId . '_repeated_count';
+            $changedKey = $jobId . '_changed_count';
+            $newKey = $jobId . '_new_count';
+
             $jobStatus = Cache::get($statusKey) ?? 'success';
 
-            $update = ['status' => $jobStatus];
+            $update = [
+                'status' => $jobStatus,
+                'counts' => [
+                    'success'  => Cache::get($successKey, 0),
+                    'repeated' => Cache::get($repeatedKey, 0),
+                    'changed'  => Cache::get($changedKey, 0),
+                    'new'      => Cache::get($newKey, 0)
+                ]
+            ];
+
             if ($jobStatus === 'failed') {
                 $update['failed_url'] = Cache::get($failedKey, []);
             }
+
+            Cache::forget($successKey);
+            Cache::forget($repeatedKey);
+            Cache::forget($changedKey);
+            Cache::forget($newKey);
 
             $jobSender = CrawlerJobSender::find($jobId);
 
@@ -149,19 +195,33 @@ class ProcessCrawledResultJob implements ShouldQueue
                 }
 
                 if ($allSuccess) {
+
                     if ($step === 1) {
-                        $crawlerStatus = 'first_step_done';
-                        app(\App\Services\CreateNodeRequest::class)->goSecondStep($crawlerId);
+
+                        $crawlerUpdate = [
+                            'crawler_status' => 'first_step_done'
+                        ];
+                        app(\App\Services\CreateNodeRequest::class)->goSecondStep($crawler->_id , 0 ,$allJobs?->pluck('id'));
                     } else if ($crawler->schedule != null) {
-                        $crawlerStatus = 'active';
+
+                        $crawlerUpdate = [
+                            'crawler_status' => 'active',
+                            'next_run_at' => Carbon::now('UTC')->addMinutes((int)$crawler->schedule)
+                        ];
                     } else {
-                        $crawlerStatus = 'completed';
+
+                        $crawlerUpdate = [
+                            'crawler_status' => 'completed'
+                        ];
                     }
                 } else {
-                    $crawlerStatus = 'error';
+
+                    $crawlerUpdate = [
+                        'crawler_status' => 'error'
+                    ];
                 }
 
-                $crawler->update(['crawler_status' => $crawlerStatus]);
+                $crawler->update($crawlerUpdate);
             }
         }
     }

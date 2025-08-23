@@ -6,7 +6,8 @@ use App\Constants\CrawlerTypes;
 use App\Http\Requests\Crawler\CreateCrawlerRequest;
 use App\Http\Requests\Crawler\UpdateCrawlerRequest;
 use App\Models\Crawler;
-use App\Services\CrawlerManager;
+use App\Models\CrawlerJobSender;
+use App\Models\CrawlerResult;
 use App\Services\CreateNodeRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -71,10 +72,21 @@ class CrawlerController extends Controller
             ->with('status', 'خزش با موفقیت شروع شد ');
     }
 
-    public function showResults(Crawler $crawler)
+    public function results(Crawler $crawler) : View
     {
-        
+        $results = CrawlerResult::where('crawler_id' , $crawler->_id)
+        ->orderByDesc('updated_at','desc')->paginate(15);
 
+        return view('crawler.results', compact('results'));
+    }
+
+    public function senders(Crawler $crawler) : View
+    {
+        $senders = CrawlerJobSender::where('crawler_id' , $crawler->_id)
+        ->with(['crawler:_id,title'])
+        ->orderBy('last_used_at','desc')->paginate(8);
+
+        return view('crawler.senders', compact('senders'));
     }
 
 

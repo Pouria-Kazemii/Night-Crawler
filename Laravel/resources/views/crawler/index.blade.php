@@ -20,7 +20,7 @@
                 <!-- Create Button Inside Container -->
                 <div class="flex justify-start mb-4">
                     <a href="{{ route('crawler.create') }}"
-                    class="inline-block bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition">
+                        class="inline-block bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition">
                         ایجاد خزشگر جدید
                     </a>
                 </div>
@@ -42,34 +42,49 @@
                             <tr class="border-t hover:bg-gray-100">
                                 <td class="px-4 py-2 align-middle">{{ $crawlers->firstItem() + $index }}</td>
                                 <td class="px-4 py-2 align-middle">{{ $crawler->title }}</td>
-                                <td class="px-4 py-2 align-middle">{{ $crawler->description }}</td>                                
+                                <td class="px-4 py-2 align-middle">{{ $crawler->description }}</td>
                                 <td class="px-4 py-2 align-middle">{{ $crawler->crawler_status }}</td>
                                 <td class="px-4 py-2 align-middle">{{ $crawler->crawler_type }}</td>
                                 <td class="px-4 py-2 align-middle">{{ $crawler->base_url }}</td>
-                                <td class="px-4 py-2 align-middle">{{ $crawler->last_run_at?->diffForHumans() ?? '-' }}</td>
+                                <td class="px-4 py-2 align-middle">{{ $crawler->last_run_at?->diffForHumans() ?? '-' }}
+                                </td>
                                 <td class="px-4 py-2 align-middle text-center">
                                     <div class="flex justify-center gap-2 rtl:flex-row-reverse">
+
                                         <!-- Edit Button -->
                                         <a href="{{ route('crawler.edit', $crawler) }}"
-                                           class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-3 py-1 rounded transition">
+                                            class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-3 py-1 rounded transition">
                                             ویرایش
                                         </a>
 
                                         <!-- Go Button -->
-                                             <form action="{{ route('crawler.go', $crawler) }}" method="POST" onsubmit="return confirm('آیا مطمئن هستید؟');">
+                                        <form action="{{ route('crawler.go', $crawler) }}" method="POST"
+                                            onsubmit="return confirm('آیا مطمئن هستید؟');">
                                             @csrf
                                             @method('POST')
-                                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded transition">
+                                            <button type="submit"
+                                                class="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded transition">
                                                 شروع
                                             </button>
                                         </form>
 
-                                        
+                                        <a href="{{ route('crawler.results', $crawler) }}"
+                                            class="bg-cyan-500 hover:bg-cyan-600 text-white text-sm px-3 py-1 rounded transition">
+                                            نتایج
+                                        </a>
+
+                                        <a href="{{ route('crawler.senders', $crawler) }}"
+                                            class="bg-purple-500 hover:bg-purple-600 text-white text-sm px-3 py-1 rounded transition">
+                                            سوابق
+                                        </a>
+
                                         <!-- Delete Button (no confirmation) -->
-                                        <form action="{{ route('crawler.destroy', $crawler) }}" method="POST" onsubmit="return confirm('آیا مطمئن هستید؟');">
+                                        <form action="{{ route('crawler.destroy', $crawler) }}" method="POST"
+                                            onsubmit="return confirm('آیا مطمئن هستید؟');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded transition">
+                                            <button type="submit"
+                                                class="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded transition">
                                                 حذف
                                             </button>
                                         </form>

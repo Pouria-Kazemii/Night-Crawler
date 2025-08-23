@@ -7,7 +7,10 @@ use App\Jobs\ProcessSendingCrawlerJob;
 use App\Models\CrawlerNode;
 use App\Models\Crawler;
 use App\Models\CrawlerJobSender;
+use App\Models\CrawlerResult;
+use Carbon\Carbon;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 
 class CreateNodeRequest implements CreateNodeRequestInterface
 {
@@ -22,13 +25,17 @@ class CreateNodeRequest implements CreateNodeRequestInterface
         $this->sendRequest($crawler, $urls, $payloadOptions, $crawlerId, $step);
     }
 
-    public function goSecondStep(string $crawlerId, int $retries = 0)
+    public function goSecondStep(string $crawlerId, int $retries = 0 , $jobs_id = null)
     {
-        $crawler = Crawler::withFilteredResultsByStep(1)->find($crawlerId);
+        $results = CrawlerResult::whereIn('crawler_job_sender_id' , $jobs_id)
+        ->where('content_changed' , true)
+        ->get();
 
-        if (count($crawler->crawlerResult) != 0) {
+        $crawler = Crawler::find($crawlerId);
 
-            foreach ($crawler->crawlerResult as $arr) {
+        if ($results != null and count($results) > 0) {
+
+            foreach ($results as $arr) {
                 $urls[] = isset($arr->content_dif)
                     ? $arr->content_dif
                     : $arr->content;
@@ -36,11 +43,16 @@ class CreateNodeRequest implements CreateNodeRequestInterface
 
             $urls = Arr::flatten($urls);
             $payloadOptions = getOptions($crawler, $crawler->two_step['second']);
-            $this->sendRequest($crawler, $urls, $payloadOptions, $crawlerId, 2);
+            Log::warning($urls);
+            $this->sendRequest($crawler, $urls, $payloadOptions, $crawler->_id, 2);
         } else {
-            $crawler->schedule != null ?
+            $crawler->schedule == null ?
                 $crawler->update(['status' => 'completed', 'last_run_at' => now()]) :
-                $crawler->update(['status' => 'active', 'last_run_at' => now()]);
+                $crawler->update([
+                    'status' => 'active',
+                    'last_run_at' => now(),
+                    'next_run_at' => Carbon::now('UTC')->addMinutes((int)$crawler->schedule)
+                ]);
         }
     }
 

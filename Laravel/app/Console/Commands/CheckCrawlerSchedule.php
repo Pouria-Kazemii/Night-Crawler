@@ -2,6 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Crawler;
+use App\Services\CreateNodeRequest;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class CheckCrawlerSchedule extends Command
@@ -25,6 +28,18 @@ class CheckCrawlerSchedule extends Command
      */
     public function handle()
     {
-        //
+        $scheduleCrawlers = Crawler::whereNotNull('next_run_at')
+            ->where('schedule', '!=', '0')
+            ->where('next_run_at', '<=', Carbon::now('UTC'))
+            ->get();
+
+        foreach ($scheduleCrawlers as $scheduleCrawler) {
+
+            $crawlerManager = app(CreateNodeRequest::class);
+
+            $crawlerManager->go($scheduleCrawler);
+
+            $this->info("Crawler {$scheduleCrawler->title} run for schedule");
+        }
     }
 }

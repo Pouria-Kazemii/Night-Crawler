@@ -2,6 +2,6 @@
 
 use Illuminate\Support\Facades\Schedule;
 
-Schedule::command('app:all-commands')->everyFiveMinutes();
-
-
+Schedule::command('app:check-nodes')->everyMinute();
+Schedule::command('app:check-crawler-schedule')->everyMinute();
+// Schedule::command('app:check-running-job')->everyFiveMinutes();

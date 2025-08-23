@@ -34,7 +34,7 @@
                             <th class="px-4 py-2">پروتکل</th>
                             <th class="px-4 py-2">وضعیت</th>
                             <th class="px-4 py-2">(ms) تاخیر</th>
-                            <th class="px-4 py-2">آخرین استفاده</th>
+                            <th class="px-4 py-2">آخرین تست سرعت</th>
                             <th class="px-4 py-2 text-center">عملیات</th>
                         </tr>
                     </thead>

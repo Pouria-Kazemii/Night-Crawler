@@ -12,5 +12,6 @@ Route::prefix('/crawler')->middleware('auth')->controller(CrawlerController::cla
     Route::put('/{crawler}' , 'update')->name('crawler.update');
     Route::delete('/{crawler}' , 'destroy')->name('crawler.destroy');
     Route::post('/{crawler}/go' , 'go')->name('crawler.go');
-    Route::get('/{crawler}/results' , 'showResults')->name('crawler.showResults');
+    Route::get('/{crawler}/senders' , 'senders')->name('crawler.senders');
+    Route::get('/{crawler}/results' , 'results')->name('crawler.results');
 });

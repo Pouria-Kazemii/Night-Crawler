@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use MongoDB\Laravel\Eloquent\Model as EloquentModel;
 
 class Crawler extends EloquentModel
@@ -33,7 +34,8 @@ class Crawler extends EloquentModel
         'last_run_at',           // datetime
         'selectors',             // array (JSON)
         'link_selector',         // string
-        'two_step'               // array(JSON)
+        'two_step',              // array(JSON)
+        'next_run_at'            // datetime
     ];
 
     public function casts(): array
@@ -45,23 +47,25 @@ class Crawler extends EloquentModel
             'pagination_rule'   => 'array',
             'auth'              => 'array',
             'api_config'        => 'array',
-            'schedule'          => 'array',
+            'schedule'          => 'integer',
             'selectors'         => 'array',
             'link_selector'     => 'string',
             'link_filter_rules' => 'array',
             'crawl_delay'       => 'integer',
             'two_step'          => 'array',
             'last_run_at'       => 'datetime',
+            'next_run_at'       => 'datetime',
         ];
     }
 
-    public function scopeWithFilteredResultsByStep($query, int $step = 1)
+    protected static function booted()
     {
-        return $query->whereHas('crawlerJobSender', function ($q) use ($step) {
-            $q->where('step', $step);
-        })->with(['crawlerResult' => function ($q) {
-            $q->where('content_changed', true);
-        }]);
+        static::saving(function ($crawler) {
+            // If schedule is set (not null/0) and was changed (or new record)
+            if (!empty($crawler->schedule) && $crawler->schedule > 0 && $crawler->isDirty('schedule')) {
+                $crawler->next_run_at = Carbon::now('UTC')->addMinutes((int)$crawler->schedule);
+            }
+        });
     }
 
     public function scopeWithNotProcessedSender($query)

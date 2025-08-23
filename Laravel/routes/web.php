@@ -13,6 +13,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
-require __DIR__.'/crawlerNode.php';
-require __DIR__.'/crawler.php';
+require __DIR__ . '/auth.php';
+require __DIR__ . '/crawlerNode.php';
+require __DIR__ . '/crawler.php';
+require __DIR__ . '/crawlerJobSenders.php';
+require __DIR__ . '/crawlerResult.php';

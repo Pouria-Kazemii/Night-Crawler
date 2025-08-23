@@ -11,14 +11,14 @@ use Illuminate\View\View;
 
 class CrawlerNodeController extends Controller
 {
-    public function index() : View
+    public function index(): View
     {
         $crawlNodes = CrawlerNode::orderByDesc('created_at')->paginate(15);
 
-        return view('crawlerNode.index' , compact('crawlNodes'));
+        return view('crawlerNode.index', compact('crawlNodes'));
     }
 
-    public function create() : View
+    public function create(): View
     {
         return view('crawlerNode.create');
     }
@@ -28,7 +28,7 @@ class CrawlerNodeController extends Controller
         CrawlerNode::create($request->validated());
 
         return redirect()->route('crawl-nodes.index')
-        ->with('status', 'پروکسی با موفقیت ایجاد شد.');
+            ->with('status', 'پروکسی با موفقیت ایجاد شد.');
     }
 
 
@@ -44,8 +44,8 @@ class CrawlerNodeController extends Controller
         return redirect()->route('crawl-nodes.index')
             ->with('status', 'پروکسی با موفقیت به‌روزرسانی شد.');
     }
-    
-    public function destroy(CrawlerNode $crawlerNode) : RedirectResponse
+
+    public function destroy(CrawlerNode $crawlerNode): RedirectResponse
     {
         $crawlerNode->delete();
 
@@ -53,7 +53,7 @@ class CrawlerNodeController extends Controller
             ->with('status', 'پروکسی با موفقیت حذف شد.');
     }
 
-    public function pingNode(CrawlerNode $crawlerNode) : RedirectResponse
+    public function pingNode(CrawlerNode $crawlerNode): RedirectResponse
     {
         $this->checkNodeHealth($crawlerNode);
 
@@ -78,12 +78,14 @@ class CrawlerNodeController extends Controller
                 $node->update([
                     'status' => 'down',
                     'latency' => null,
+                    'last_used_at' => now(),
                 ]);
             }
         } catch (\Exception $e) {
             $node->update([
                 'status' => 'down',
                 'latency' => null,
+                'last_used_at' => now(),
             ]);
         }
     }
