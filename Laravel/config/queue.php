@@ -30,6 +30,24 @@ return [
 
     'connections' => [
 
+
+        'crawler-send' => [
+            'driver'       => 'mongodb',
+            'table'        => 'crawler-send-jobs',
+            'queue'        => 'default',
+            'connection'   => 'mongodb', // name of the MongoDB connection in config/database.php
+            'expire'       => 60,
+        ],
+
+        'crawler-receive' => [
+            'driver'       => 'mongodb',
+            'table'        => 'crawler-receive-jobs',
+            'queue'        => 'default',
+            'connection'   => 'mongodb',
+            'expire'       => 60,
+        ],
+
+
         'sync' => [
             'driver' => 'sync',
         ],
