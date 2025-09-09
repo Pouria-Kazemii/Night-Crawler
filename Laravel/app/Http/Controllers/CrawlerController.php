@@ -66,10 +66,10 @@ class CrawlerController extends Controller
 
         $crawlerManager = app(CreateNodeRequest::class);
 
-        $crawlerManager->go($crawler);
+        $result = $crawlerManager->go($crawler);
 
         return redirect()->route('crawler.index')
-            ->with('status', 'خزش با موفقیت شروع شد ');
+            ->with($result['key'], $result['message']);
     }
 
     public function results(Crawler $crawler) : View
@@ -84,7 +84,7 @@ class CrawlerController extends Controller
     {
         $senders = CrawlerJobSender::where('crawler_id' , $crawler->_id)
         ->with(['crawler:_id,title'])
-        ->orderBy('last_used_at','desc')->paginate(8);
+        ->orderByStatusPriority()->paginate(8);
 
         return view('crawler.senders', compact('senders'));
     }

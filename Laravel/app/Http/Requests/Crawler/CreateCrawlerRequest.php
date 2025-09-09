@@ -49,7 +49,6 @@ class CreateCrawlerRequest extends FormRequest
 
     public function rules(): array
     {
-
         return [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
@@ -83,7 +82,9 @@ class CreateCrawlerRequest extends FormRequest
             'selectors' => $this->check(CrawlerTypes::SELECTOR)
                 ? ['required', 'array']
                 : ['nullable', 'array'],
+            
 
+            'array_selector' => ['nullable' , Rule::in(['true' , 'false'])],    
 
             'link_selector' => ['nullable', 'string'],
 
