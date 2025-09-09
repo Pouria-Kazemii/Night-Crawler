@@ -36,6 +36,7 @@
                                 </td>
 
                                 <!-- Contents -->
+                                <!-- Contents -->
                                 <td class="px-4 py-2 align-middle">
                                     @if (!empty($result->content))
                                         <button onclick="toggleContent('content-{{ $loop->index }}')"
@@ -45,28 +46,64 @@
 
                                         <div id="content-{{ $loop->index }}"
                                             class="hidden mt-2 max-h-60 overflow-y-auto p-2 border rounded bg-gray-50 text-sm break-words">
-
-                                            @if (is_array($result->content) && \Illuminate\Support\Arr::isAssoc($result->content))
-                                                {{-- Case 1: Object (key => array) --}}
-                                                <dl>
-                                                    @foreach ($result->content as $field => $values)
-                                                        <dt class="font-semibold mt-2">{{ $field }}:</dt>
-                                                        <dd class="ml-4">
-                                                            <ul class="list-disc list-inside space-y-1">
-                                                                @foreach ($values as $val)
-                                                                    <li>{{ $val }}</li>
-                                                                @endforeach
-                                                            </ul>
-                                                        </dd>
-                                                    @endforeach
-                                                </dl>
-                                            @elseif(is_array($result->content))
-                                                {{-- Case 2: Plain array --}}
-                                                <ul class="list-disc list-inside space-y-1">
-                                                    @foreach ($result->content as $val)
-                                                        <li>{{ $val }}</li>
-                                                    @endforeach
-                                                </ul>
+                                            @if (is_array($result->content))
+                                                @if (array_is_list($result->content))
+                                                    {{-- Case 1 : array => array => object of values --}}
+                                                    <dl>
+                                                        @foreach ($result->content as $number => $values)
+                                                            @if (is_array($values))
+                                                                <dt class="font-extrabold mb-2 mt-2">شماره ی
+                                                                    {{ $number + 1 }}</dt>
+                                                                <dd class="ml-4">
+                                                                    <ul class="list-none list-inside space-y-1">
+                                                                        @foreach ($values as $key => $val)
+                                                                            <li>
+                                                                                <div
+                                                                                    class="flex flex-col sm:flex-row mb-4 pb-4 border-b border-dashed border-gray-300 last:border-b-0 last:mb-0 last:pb-0">
+                                                                                    <span
+                                                                                        class="font-medium text-gray-800 text-left">{{ $key }}
+                                                                                        : </span>
+                                                                                    <span
+                                                                                        class="text-gray-700 flex-grow text-right">{{ $val }}</span>
+                                                                                </div>
+                                                                            </li>
+                                                                        @endforeach
+                                                                    </ul>
+                                                                </dd>
+                                                            @else
+                                                                {{-- Case 2 : array => values) --}}
+                                                                <ul class="list-disc list-inside space-y-1">
+                                                                    <li>
+                                                                        <div
+                                                                            class="flex flex-col sm:flex-row mb-4 pb-4 border-b border-dashed border-gray-300 last:border-b-0 last:mb-0 last:pb-0">
+                                                                            <span
+                                                                                class="font-semibold text-gray-800 sm:w-40 sm:text-left mb-1 sm:mb-0">{{ $values }}
+                                                                                : </span>
+                                                                        </div>
+                                                                    </li>
+                                                                </ul>
+                                                            @endif
+                                                        @endforeach
+                                                    </dl>
+                                                @else
+                                                    {{-- Case 3: Object (key => array of values) --}}
+                                                    <dl>
+                                                        @foreach ($result->content as $field => $values)
+                                                            <dt class="font-semibold mt-2">{{ $field }}:</dt>
+                                                            <dd class="ml-4">
+                                                                <ul class="list-none list-inside space-y-1">
+                                                                    @if (is_array($values))
+                                                                        @foreach ($values as $val)
+                                                                            <li>{{ $val }}</li>
+                                                                        @endforeach
+                                                                    @else
+                                                                        <li>{{ $values }}</li>
+                                                                    @endif
+                                                                </ul>
+                                                            </dd>
+                                                        @endforeach
+                                                    </dl>
+                                                @endif
                                             @else
                                                 {{-- Case 3: Plain string or number --}}
                                                 <div>{{ $result->content }}</div>

@@ -34,9 +34,9 @@ if (!function_exists('getUrls')) {
 
 if (!function_exists('getOptions')) {
 
-    function getOptions(Crawler $crawler , $type = null)
+    function getOptions(Crawler $crawler, $type = null)
     {
-        if($type === null ){
+        if ($type === null) {
             $type = $crawler->crawler_type;
         }
 
@@ -46,6 +46,7 @@ if (!function_exists('getOptions')) {
                 return [
                     'type' => $type,
                     'options' => [
+                        'separate_items' => $crawler->array_selector != null ? $crawler->array_selector : false,
                         'crawl_delay' => $crawler->crawl_delay != null ? $crawler->crawl_delay : 0,
                         'selectors' => $crawler->selectors
                     ]
@@ -64,10 +65,10 @@ if (!function_exists('getOptions')) {
                 break;
 
             case 'dynamic';
-
                 return [
                     'type' => $type,
                     'options' => [
+                        'separate_items' => $crawler->array_selector != null ? $crawler->array_selector : false,
                         'crawl_delay' => $crawler->crawl_delay != null ? $crawler->crawl_delay : 0,
                         'selectors' => $crawler->selectors,
                         'max_scrolls' => $crawler->dynamic_limit
@@ -88,6 +89,7 @@ if (!function_exists('getOptions')) {
                         'password_selector' => $crawler->auth['password_selector']
                     ],
                     'options' => [
+                        'separate_items' => $crawler->array_selector != null ? $crawler->array_selector : false,
                         'crawl_delay' => $crawler->crawl_delay != null ? $crawler->crawl_delay : 0,
                         'selectors' => $crawler->selectors
                     ]
@@ -108,6 +110,7 @@ if (!function_exists('getOptions')) {
                     'type' => $type,
                     'next_page_selector' => $crawler->pagination_rule['next_page_selector'],
                     'options' => [
+                        'separate_items' => $crawler->array_selector != null ? $crawler->array_selector : false,
                         'crawl_delay' => $crawler->crawl_delay != null ? $crawler->crawl_delay : 0,
                         'limit' => $crawler->pagination_rule['limit'] ?? 1,
                         'selectors' => $crawler->selectors

@@ -27,7 +27,8 @@ class CrawlerJobSender extends EloquentModel
         'last_used_at',
         'started_at',
         'completed_at',
-        'counts'
+        'counts',
+        'status_priority'
     ];
 
 
@@ -39,8 +40,30 @@ class CrawlerJobSender extends EloquentModel
             'urls' => 'array',
             'started_at' => 'datetime',
             'completed_at' => 'datetime',
-            'last_used_at' => 'datetime'
+            'last_used_at' => 'datetime',
+            'status_priority' => 'integer',
         ];
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($model) {
+            $priorityMap = [
+                'running' => 1,
+                'queued' => 2,
+                'error' => 3,
+                'success' => 4
+            ];
+
+            $model->status_priority = $priorityMap[$model->status] ?? 5;
+        });
+    }
+
+    public function scopeOrderByStatusPriority($query)
+    {
+        return $query->orderBy('status_priority')->orderByDesc('last_used_at');
     }
 
     public function scopeGetLastQueued($query, $node_id)

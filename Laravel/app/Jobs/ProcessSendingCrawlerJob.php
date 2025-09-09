@@ -29,58 +29,36 @@ class ProcessSendingCrawlerJob implements ShouldQueue
      */
     public function handle(): void
     {
-        //TODO : FIX RETRIES SYSTEM
         try {
-            if ($this->crawler_job_sender->retries < 3) {
-                
-                $this->crawler_job_sender->load('crawler')->crawler->update(['crawler_status' => 'running']);
 
-                $this->crawler_job_sender->update(['status' => 'running']);
+            $this->crawler_job_sender->load('crawler')->crawler->update([
+                'crawler_status' => 'running',
+                'last_run_at' => now()
+            ]);
 
-                $payloadOptions = $this->crawler_job_sender->payload;
+            $this->crawler_job_sender->update([
+                'status' => 'running',
+                'last_used_at'  => now()
+            ]);
 
-                $payloadOptions['urls'] = $this->crawler_job_sender->urls;
+            $payloadOptions = $this->crawler_job_sender->payload;
 
-                $payloadOptions['meta'] = [
-                    'job_id' => $this->crawler_job_sender->_id,
-                    'crawler_id' => $this->crawler_job_sender->crawler_id
-                ];
+            $payloadOptions['urls'] = $this->crawler_job_sender->urls;
 
-                $node = $this->crawler_job_sender->crawlerNode;
+            $payloadOptions['meta'] = [
+                'job_id' => $this->crawler_job_sender->_id,
+                'crawler_id' => $this->crawler_job_sender->crawler_id
+            ];
 
-                $response = Http::timeout(15)->withHeaders([
-                    'Authorization' => 'Bearer ' . env('CRAWLER_API_TOKEN'),
-                    'Accept' => 'application/json',
-                ])->post("http://{$node->ip_address}:{$node->port}/crawl", $payloadOptions);
-            }
+            $node = $this->crawler_job_sender->crawlerNode;
+
+            $response = Http::timeout(15)->withHeaders([
+                'Authorization' => 'Bearer ' . config('crawler.api_token'),
+                'Accept' => 'application/json',
+            ])->post("http://{$node->ip_address}:{$node->port}/crawl", $payloadOptions);
+
 
             if ($response->failed()) {
-
-                if ($this->crawler_job_sender->retries < 3) {
-
-                    $this->crawler_job_sender->increment('retries');
-                } else {
-
-                    $this->crawler_job_sender->update(['status' => 'failed']);
-
-                    $this->crawler_job_sender->crawler->update(['crawler_status' => 'failed']);
-
-                    $newSender = CrawlerJobSender::getLastQueued($node->_id);
-
-                    if ($newSender->exists()) {
-
-                        dispatch(new ProcessSendingCrawlerJob($newSender->first()))->onConnection('crawler-send');
-                    }
-                }
-            }
-        } catch (\Exception $e) {
-
-            if ($this->crawler_job_sender->retries < 3) {
-
-                $this->crawler_job_sender->increment('retries');
-
-                dispatch(new ProcessSendingCrawlerJob($this->crawler_job_sender))->onConnection('crawler-send');
-            } else {
 
                 $this->crawler_job_sender->update(['status' => 'failed']);
 
@@ -92,6 +70,18 @@ class ProcessSendingCrawlerJob implements ShouldQueue
 
                     dispatch(new ProcessSendingCrawlerJob($newSender->first()))->onConnection('crawler-send');
                 }
+            }
+        } catch (\Exception $e) {
+
+            $this->crawler_job_sender->update(['status' => 'failed']);
+
+            $this->crawler_job_sender->crawler->update(['crawler_status' => 'failed']);
+
+            $newSender = CrawlerJobSender::getLastQueued($node->_id);
+
+            if ($newSender->exists()) {
+
+                dispatch(new ProcessSendingCrawlerJob($newSender->first()))->onConnection('crawler-send');
             }
         }
     }
