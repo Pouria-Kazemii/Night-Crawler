@@ -12,7 +12,6 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -113,7 +112,7 @@ class ProcessCrawledResultJob implements ShouldQueue
             }
         }
 
-        // ❌ Failed result
+        // Failed result
         else {
             $failedKey = $jobId . '_failed_urls';
             $statusKey = $jobId . '_status';

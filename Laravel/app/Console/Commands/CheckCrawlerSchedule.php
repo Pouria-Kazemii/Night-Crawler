@@ -28,10 +28,19 @@ class CheckCrawlerSchedule extends Command
      */
     public function handle()
     {
-        $scheduleCrawlers = Crawler::whereNotNull('next_run_at')
-            ->where('schedule', '!=', '0')
-            ->where('next_run_at', '<=', Carbon::now('UTC'))
-            ->get();
+        $scheduleCrawlers = Crawler::
+        where(function ($query) {
+            $query->whereDoesntHave('crawlerJobSender', function ($q) {
+                $q->where('status', 'queued')
+                ->orWhere('status' , 'running');
+            });
+        })->
+        whereNotNull('next_run_at')->
+        where('schedule', '!=', '0')->
+        where('schedule' , '!=' , null)->
+        where('crawler_status', '!=', 'pause')->
+        where('next_run_at', '<=', Carbon::now('UTC'))->
+        get();
 
         foreach ($scheduleCrawlers as $scheduleCrawler) {
 

@@ -35,7 +35,8 @@ class Crawler extends EloquentModel
         'selectors',             // array (JSON)
         'link_selector',         // string
         'two_step',              // array(JSON)
-        'next_run_at'            // datetime
+        'next_run_at',           // datetime
+        'array_selector'         // boolean
     ];
 
     public function casts(): array

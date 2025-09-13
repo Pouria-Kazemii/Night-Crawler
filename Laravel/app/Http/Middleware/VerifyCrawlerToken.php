@@ -1,4 +1,5 @@
 <?php
+// app/Http/Middleware/VerifyCrawlerToken.php
 
 namespace App\Http\Middleware;
 
@@ -9,19 +10,16 @@ use Symfony\Component\HttpFoundation\Response;
 
 class VerifyCrawlerToken
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
+        $correctToken = config('crawler.api_token');
         $incomingToken = $request->header('Authorization');
 
-        if (!$incomingToken || $incomingToken !== 'Bearer '.env('CRAWLER_API_TOKEN')) {
+        if (!$incomingToken || $incomingToken !== 'Bearer ' . $correctToken) {
             Log::warning('Invalid crawler token attempt', [
                 'ip' => $request->ip(),
-                'token' => $incomingToken,
+                'received_token' => $incomingToken,
+                'expected_token' => 'Bearer ' . $correctToken // This will now show correctly
             ]);
             return response()->json(['message' => 'Unauthorized'], 401);
         }

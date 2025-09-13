@@ -64,7 +64,7 @@ class CrawlerNodeController extends Controller
     {
         try {
             $start = microtime(true); // Start measuring time
-            $response = Http::timeout(2)->get("http://{$node->ip_address}:{$node->port}/health");
+            $response = Http::timeout(2)->get("{$node->protocol}://{$node->ip_address}:{$node->port}/health");
 
             $latency = round((microtime(true) - $start) * 1000); // in ms
 

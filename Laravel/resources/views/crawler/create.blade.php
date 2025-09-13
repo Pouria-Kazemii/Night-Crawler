@@ -52,8 +52,8 @@
                         <select name="crawler_status" id="crawler_status"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
                             <option value="">انتخاب کنید</option>
-                            @foreach (['paused' => 'متوقف'] as $key => $label)
-                                <option value="{{ $key }}" @selected(old('crawler_status') === $key)>{{ $label }}
+                            @foreach (['paused' => 'متوقف' , 'active' => 'فعال'] as $key => $label)
+                                <option value="{{ $key }}" @selected(old('crawler_status') === $key)> {{ $label }}
                                 </option>
                             @endforeach
                         </select>
@@ -116,7 +116,8 @@
 
                     <!-- Schedule -->
                     <div>
-                        <label for="schedule" class="block text-sm font-bold text-gray-700">زمان‌ بندی بر حسب دقیقه</label>
+                        <label for="schedule" class="block text-sm font-bold text-gray-700">زمان‌ بندی بر حسب
+                            دقیقه</label>
                         <input id="schedule" type="number" name="schedule" placeholder="60"
                             value="{{ old('schedule') }}"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
@@ -203,6 +204,26 @@
 
                     <!-- Selectors Section -->
                     <div class="mb-6" x-show="needsSelectors">
+
+                        <!-- Array Selector -->
+                        <div class="mb-4">
+                            <div class="mb-4">
+                                <p>⚠️نکته:در صورتی که میخواهید از نوع خروجی جدا شده استفاده کنید،حتما در انتخاب کنندها
+                                    ستونی با کلید container و سلکتور مورد نظر تعریف کنید. در غیر این نتیجه مورد نظر بدست
+                                    نخواهد آمد.</p>
+                            </div>
+                            <div>
+                                <label for="array_selector" class="block text-sm font-medium text-gray-700 mb-1">
+                                    نوع خروجی
+                                </label>
+                                <select name="array_selector" id="array_selector"
+                                    class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm bg-white transition-colors duration-200 [&:not(:placeholder-shown)]:bg-red-100">
+                                    <option value="" disabled selected>یک مورد را انتخاب کنید</option>
+                                    <option value="false">به صورت یکجا</option>
+                                    <option value="true">جدا شده</option>
+                                </select>
+                            </div>
+                        </div>
 
                         <label class="block text-sm font-bold text-gray-700 mb-2">انتخاب کننده‌ها</label>
 
