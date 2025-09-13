@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Jobs\ProcessSendingCrawlerJob;
 use App\Models\CrawlerJobSender;
 use App\Models\CrawlerNode;
+use App\Models\CrawlerResult;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
@@ -33,18 +34,29 @@ class CheckRunningJob extends Command
      */
     public function handle()
     {
-        $jobs = CrawlerJobSender::where(function ($query) {
-            $query->whereHas('lastResult', function ($q) {
-                $q->where('updated_at', '<=', Carbon::now('UTC')->addMinutes(-1));
-            })
-                ->orWhereDoesntHave('crawlerResults');
-        })
-            ->where('status', 'running')
+        $jobs = CrawlerJobSender::where('status', 'running')
             ->where('last_used_at', '<=', Carbon::now('UTC')->addMinutes(-1))
             ->with('crawler')
             ->get();
 
-        if (count($jobs) > 0) {
+        // Pre-load latest results for all jobs
+        $jobIds = $jobs->pluck('id');
+        $latestResults = CrawlerResult::whereIn('crawler_job_sender_id', $jobIds)
+            ->orderBy('updated_at', 'desc')
+            ->get()
+            ->groupBy('crawler_job_sender_id')
+            ->map(function ($results) {
+                return $results->first(); // Get latest result for each job
+            });
+
+        // Filter jobs
+        $filteredJobs = $jobs->filter(function ($job) use ($latestResults) {
+            $latestResult = $latestResults->get($job->id);
+            return is_null($latestResult) ||
+                $latestResult->updated_at <= Carbon::now('UTC')->addMinutes(-1);
+        });
+
+        if (count($filteredJobs) > 0) {
 
             $sortedNodes = CrawlerNode::sortedActive()
                 ->get()
@@ -61,7 +73,7 @@ class CheckRunningJob extends Command
 
             if ($sortedNodes->count() > 0) {
 
-                foreach ($jobs as $job) {
+                foreach ($filteredJobs as $job) {
 
                     $newNode = $sortedNodes->firstWhere('_id', '!=', $job->node_id);
 
