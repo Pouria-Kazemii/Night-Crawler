@@ -17,12 +17,15 @@ class CreateNodeRequest implements CreateNodeRequestInterface
     {
         $urls = getUrls($crawler);
 
+        $is_two_step = $crawler->crawler_type == 'two_step';
+
         $crawlerId = (string)$crawler->_id;
 
-        $crawler->crawler_type != 'two_step' ? $payloadOptions = getOptions($crawler) :
-            $payloadOptions = getOptions($crawler, $crawler->two_step['first']);
+        $step = $is_two_step ? 1 : 0;
 
-        $step = $crawler->crawler_type == 'two_step' ? 1 : 0;
+        $is_two_step ?
+        $payloadOptions = getOptions($crawler, $crawler->two_step['first'] , $step):
+        $payloadOptions = getOptions($crawler) ;
 
         return $this->sendRequest($crawler, $urls, $payloadOptions, $crawlerId, $step);
     }
