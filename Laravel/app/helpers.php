@@ -34,7 +34,7 @@ if (!function_exists('getUrls')) {
 
 if (!function_exists('getOptions')) {
 
-    function getOptions(Crawler $crawler, $type = null)
+    function getOptions(Crawler $crawler, $type = null, $step = 0)
     {
         if ($type === null) {
             $type = $crawler->crawler_type;
@@ -65,15 +65,25 @@ if (!function_exists('getOptions')) {
                 break;
 
             case 'dynamic';
+
+                if($step == 1){
+                    $selectorKey = 'selector';
+                    $selectorValue = $crawler->link_selector; 
+                }else {
+                    $selectorKey = 'selectors';
+                    $selectorValue = $crawler->selectors;
+                }
+
                 return [
                     'type' => $type,
                     'options' => [
                         'separate_items' => $crawler->array_selector != null ? $crawler->array_selector : false,
                         'crawl_delay' => $crawler->crawl_delay != null ? $crawler->crawl_delay : 0,
-                        'selectors' => $crawler->selectors,
+                        $selectorKey => $selectorValue,
                         'max_scrolls' => $crawler->dynamic_limit
                     ]
                 ];
+
                 break;
 
             case 'authenticated';

@@ -6,13 +6,13 @@ class CrawlerTypes
 {
     public const  ALL_STEP = ['static', 'dynamic', 'paginated', 'authenticated', 'api', 'seed', 'two_step'];
 
-    public const FIRST_STEP = ['seed'];
+    public const FIRST_STEP = ['seed','dynamic'];
     
     public const SECOND_STEP = ['static' , 'dynamic' , 'paginated' , 'api'];
 
     public const SELECTOR = ['static' , 'dynamic' , 'paginated' , 'authenticated' , 'api'];
 
-    public const LINK_SELECTOR = ['seed'];
+    public const LINK_SELECTOR = ['seed','dynamic'];
 
     public static function all() : array
     {
