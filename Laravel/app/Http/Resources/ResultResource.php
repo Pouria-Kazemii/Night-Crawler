@@ -66,6 +66,10 @@ class ResultResource extends JsonResource
 
     private function getImageUrl()
     {
-        return Str::between($this->content['picture'][0], 'src="', '" class');
+        if (isset($this->content['picture'][0])) {
+            return Str::between($this->content['picture'][0], 'src="', '" class');
+        } else {
+            return [] ;
+        }
     }
 }
