@@ -19,8 +19,8 @@ class ResultResource extends JsonResource
         return [
             'url' => $this->final_url,
             'title' => $this->content['title'],
-            'main_price' => $this->getMainPrice(),
-            'discount_price' => $this->getDiscountPrice(),
+            'main_price' => [$this->getMainPrice()],
+            'discount_price' => [$this->getDiscountPrice()],
             'isbn' => $this->content['isbn'],
             'category' => $this->content['category'],
             'publisher' => $this->content['publisher'],
@@ -66,6 +66,6 @@ class ResultResource extends JsonResource
 
     private function getImageUrl()
     {
-        return Str::between($this->content['picture'][0], 'src="', '"');
+        return Str::between($this->content['picture'][0], 'src="', '" class');
     }
 }
