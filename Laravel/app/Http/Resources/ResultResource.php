@@ -19,8 +19,8 @@ class ResultResource extends JsonResource
         return [
             'url' => $this->final_url,
             'title' => $this->content['title'],
-            'main_price' => [$this->getMainPrice()],
-            'discount_price' => [$this->getDiscountPrice()],
+            'main_price' => $this->content['main_price'],
+            'discount_price' => $this->content['discount_price'],
             'isbn' => $this->content['isbn'],
             'category' => $this->content['category'],
             'publisher' => $this->content['publisher'],
