@@ -57,22 +57,22 @@ class ResultResource extends JsonResource
     {
 
         if ($this->checkExists() == false) {
-            return "ندارد";
+            return "0";
         }
 
         $crawler_id = $this->resource->crawler['id'];
 
         if ($crawler_id == '68cea2cef4df94b20a090967') {
             if ($main) {
-                return (int)$this->content['solo_price'][0] * 10 ?? null;
+                return ((int)$this->content['solo_price'][0] ?? 0) * 10 ;
             } else {
-                return (int)$this->content['solo_price'][1] * 10 ?? null;
+                return ((int)$this->content['solo_price'][1] ?? 0) * 10 ;
             }
         } else {
             if ($main) {
-                return (int)$this->content['main_price'][0] * 10;
+                return ((int)$this->content['main_price'][0] ?? 0) * 10;
             } else {
-                return (int)$this->content['discount_price'][0] * 10;
+                return ((int)$this->content['discount_price'][0] ?? 0) * 10;
             }
         }
     }
