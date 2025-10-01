@@ -13,6 +13,7 @@ class ResultController extends Controller
     {
         $isbn = $request->input('isbn', false);
         $crawler = $request->input('crawler_id', false);
+        $per_page = $request->input('per_page', 50);
 
         $results =  CrawlerResult::query();
 
@@ -27,7 +28,7 @@ class ResultController extends Controller
             $results->where('crawler_id', $crawler);
         }
 
-        return ResultResource::collection($results->get()->load('crawler:title'));
+        return ResultResource::collection($results->paginate($per_page)->load('crawler:title'));
     }
 
     public function image(Request $request)
@@ -45,13 +46,15 @@ class ResultController extends Controller
 
 
         if ($result != []) {
-            preg_match('/src="([^"]+)"/i', $result[0], $matches);
+            
             return response()->json([
                 'data' => [
                     'result' => $result,
-                    'matches' => $matches
                 ]
             ]);
+
+            preg_match('/src="([^"]+)"/i', $result[0], $matches);
+
             if ($matches[1] != null) {
                 $content = file_get_contents($matches[1]);
                 return response($content, 200)->header('Content-Type', 'image/jpeg');

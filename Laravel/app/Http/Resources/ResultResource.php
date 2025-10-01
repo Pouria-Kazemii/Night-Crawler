@@ -24,7 +24,7 @@ class ResultResource extends JsonResource
     {
         return [
             'source' => $this->resource->crawler['title'] ?? 'نامشخص',
-            'url' => $this->final_url,
+            'url' => $this->final_url ?? '',
             'exists' => $this->checkExists,
             'title' => $this->content['title'],
             'main_price' => $this->getPrice(),
