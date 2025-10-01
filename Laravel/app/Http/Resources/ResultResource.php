@@ -17,7 +17,27 @@ class ResultResource extends JsonResource
     {
         return [
             'source_title' => $this->resource->crawler,
-            'content' => $this->resource['content']
+            'content' => [
+                'url' => $this->final_url,
+                'title' => $this->content['title'],
+                'main_price' => $this->content['main_price'],
+                'discount_price' => $this->content['discount_price'],
+                'isbn' => $this->content['isbn'],
+                'category' => $this->content['category'],
+                'publisher' => $this->content['publisher'],
+                'group' => $this->content['group'] ?? [],
+                'field' => $this->content['field'] ?? $this->content['good_for'],
+                'lesson' => $this->content['lesson'] ?? $this->content['subject'],
+                'page_count' => $this->content['page_count'],
+                'grade' => $this->content['grade'],
+                'weight' => $this->content['weight'],
+                'creators' => $this->content['creators'],
+                'publish_year' => $this->content['publish_year'] ?? [] ,
+                'description' => $this->content['description'],
+                'image' => $this->getImageUrl(),
+                'format' => $this->content['format'],
+                'language' => $this->content['language'] ?? []
+            ]
         ];
     }
 
