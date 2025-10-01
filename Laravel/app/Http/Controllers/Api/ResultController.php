@@ -32,7 +32,7 @@ class ResultController extends Controller
             $q->where('content.isbn', $numbers['persian'])
                 ->orWhere('content.isbn', $numbers['english']);
         })->where('crawler_id', '68db8e7d4ef90d050505faac')
-            ->pluck('content.picture')
+            ->pluck('content.image')
             ->toArray();
 
 
@@ -40,15 +40,15 @@ class ResultController extends Controller
             preg_match('/src="([^"]+)"/i', $result[0], $matches);
             if ($matches[1] != null) {
                 $content = file_get_contents($matches[1]);
-                return response($content , 200)->header('Content-Type', 'image/jpeg');
+                return response($content, 200)->header('Content-Type', 'image/jpeg');
             }
+        } else {
+            return response()->json([
+                'message' => 'not found',
+                'data' => null,
+                'status' => 404
+            ]);
         }
-
-        return response()->json([
-            'message' => 'not found',
-            'data' => null,
-            'status' => 404
-        ]);
     }
 
 
