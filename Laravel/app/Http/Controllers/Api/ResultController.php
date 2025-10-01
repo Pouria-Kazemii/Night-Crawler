@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ResultResource;
+use App\Models\CrawlerJobSender;
 use App\Models\CrawlerResult;
 use Illuminate\Http\Request;
 
@@ -28,7 +29,9 @@ class ResultController extends Controller
         }
 
         if ($crawler) {
-            $results->where('crawler_id', $crawler);
+            $jobs = CrawlerJobSender::where('crawler_id' , $crawler)->where('step' ,'!=' , (int)1);
+            $jobs_id = $jobs->pluck('id')->toArray();
+            $results->whereIn('crawler_job_sender_id', $jobs_id);
         }
 
         return ResultResource::collection($results->paginate($per_page)->load('crawler:title'));
