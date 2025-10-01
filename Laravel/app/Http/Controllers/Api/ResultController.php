@@ -27,12 +27,8 @@ class ResultController extends Controller
         if ($crawler) {
             $results->where('crawler_id', $crawler);
         }
-
-        if ($results->count() != 1) {
-            return ResultResource::collection($results->paginate($per_page)->load('crawler:title'));
-        } else {
-            return ResultResource::make($results->paginate()->load('crawler:title'));
-        }
+        
+        return ResultResource::collection($results->paginate($per_page)->load('crawler:title'));
     }
 
     public function image(Request $request)
@@ -65,7 +61,7 @@ class ResultController extends Controller
                     'status' => 404
                 ]);
             }
-        } else if($url){       
+        } else if ($url) {
             $content = file_get_contents($url);
             return response($content, 200)->header('Content-Type', 'image/jpeg');
         }

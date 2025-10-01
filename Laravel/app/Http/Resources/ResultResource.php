@@ -64,15 +64,23 @@ class ResultResource extends JsonResource
 
         if ($crawler_id == '68cea2cef4df94b20a090967') {
             if ($main) {
-                return (int) ($this->content['solo_price'][0] ?? 0) * 10;
+                return (int) ($this->content['solo_price'][0] ?? 0) * 10000;
             } else {
-                return (int) ($this->content['solo_price'][1] ?? 0) * 10;
+                return (int) ($this->content['solo_price'][1] ?? 0) * 10000;
+            }
+        } else if ($crawler_id == '68db8e7d4ef90d050505faac') {
+            if ($main) {
+                $number = ($this->content['main_price'][0] ?? 0);
+                $this->persianToEnglishInt($number);
+            } else {
+                $number = ($this->content['discount_price'][0] ?? 0);
+                $this->persianToEnglishInt($number);
             }
         } else {
             if ($main) {
-                return (int)($this->content['main_price'][0] ?? 0) * 10;
+                return (int)($this->content['main_price'][0] ?? 0) * 10000;
             } else {
-                return (int)($this->content['discount_price'][0] ?? 0) * 10;
+                return (int)($this->content['discount_price'][0] ?? 0) * 10000;
             }
         }
     }
@@ -94,5 +102,15 @@ class ResultResource extends JsonResource
         } else {
             return [];
         }
+    }
+
+    private function persianToEnglishInt($str)
+    {
+        $persian = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹', '٬', ','];
+        $english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '', ''];
+
+        $str = str_replace($persian, $english, $str);
+
+        return (int)$str * 10;
     }
 }
