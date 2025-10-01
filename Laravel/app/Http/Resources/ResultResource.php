@@ -8,13 +8,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ResultResource extends JsonResource
 {
-    private bool $checkExists;
-
-    public function __construct()
-    {
-        $this->checkExists = $this->checkExists();
-    }
-
     /**
      * Transform the resource into an array.
      *
@@ -23,9 +16,9 @@ class ResultResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'source' => $this->resource->crawler['title'] ?? 'نامشخص',
-            'url' => $this->final_url ?? '',
-            'exists' => $this->checkExists,
+            'source' => $this->crawler['title'] ?? 'نامشخص',
+            'url' => $this->final_url,
+            'exists' => $this->checkExists(),
             'title' => $this->content['title'],
             'main_price' => $this->getPrice(),
             'discount_price' => $this->getPrice(false),
@@ -54,22 +47,21 @@ class ResultResource extends JsonResource
             ($this->content['discount_price'] ?? []) == [] &&
             ($this->content['solo_price'] ?? []) == []
         ) {
-            $this->checkExists = false;
             return false;
         } else {
-            $this->checkExists = true;
             return true;
         }
     }
 
     private function getPrice($main = true)
     {
-        $crawler_id = $this->resource->crawler['id'];
 
-        if ($this->checkExists == false) {
+        if ($this->checkExists() == false) {
             return "ندارد";
         }
-        
+
+        $crawler_id = $this->resource->crawler['id'];
+
         if ($crawler_id == '68cea2cef4df94b20a090967') {
             if ($main) {
                 return (int)$this->content['solo_price'][0] * 10 ?? null;
@@ -78,9 +70,9 @@ class ResultResource extends JsonResource
             }
         } else {
             if ($main) {
-                return (int)$this->content['main_price'][0] * 10 ;
+                return (int)$this->content['main_price'][0] * 10;
             } else {
-                return (int)$this->content['discount_price'][0]* 10;
+                return (int)$this->content['discount_price'][0] * 10;
             }
         }
     }

@@ -27,8 +27,12 @@ class ResultController extends Controller
         if ($crawler) {
             $results->where('crawler_id', $crawler);
         }
-
-        return ResultResource::collection($results->paginate($per_page)->load('crawler:title'));
+        
+        if ($results->count() != 1) {
+            return ResultResource::collection($results->paginate($per_page)->load('crawler:title'));
+        } else {
+            return ResultResource::make($results->paginate()->load('crawler:title'));
+        }
     }
 
     public function image(Request $request)
@@ -45,15 +49,8 @@ class ResultController extends Controller
             ->toArray();
 
 
-        if ($result != []) {
-            
-            return response()->json([
-                'data' => [
-                    'result' => $result,
-                ]
-            ]);
-
-            preg_match('/src="([^"]+)"/i', $result[0], $matches);
+        if ($result != [] and !empty($result)) {
+            preg_match('/src="([^"]+)"/i', $result[0][0], $matches);
 
             if ($matches[1] != null) {
                 $content = file_get_contents($matches[1]);
