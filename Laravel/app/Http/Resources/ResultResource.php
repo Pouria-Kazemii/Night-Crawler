@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Str;
 
 
 class ResultResource extends JsonResource
@@ -17,24 +16,8 @@ class ResultResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'url' => $this->final_url,
-            'title' => $this->content['title'],
-            'main_price' => $this->content['main_price'],
-            'discount_price' => $this->content['discount_price'],
-            'isbn' => $this->content['isbn'],
-            'category' => $this->content['category'],
-            'publisher' => $this->content['publisher'],
-            'group' => $this->content['group'],
-            'field' => $this->content['field'],
-            'lesson' => $this->content['lesson'],
-            'page_count' => $this->content['page_count'],
-            'grade' => $this->content['grade'],
-            'weight' => $this->content['weight'],
-            'creators' => $this->content['creators'],
-            'publish_year' => $this->content['publish_year'],
-            'description' => $this->content['description'],
-            'image' => $this->getImageUrl(),
-            'format' => $this->content['format'],
+            'source_title' => $this->resource->crawler,
+            'content' => $this->resource['content']
         ];
     }
 

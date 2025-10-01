@@ -141,7 +141,7 @@ class ProcessCrawledResultJob implements ShouldQueue
             $newKey = $jobId . '_new_count';
 
             $jobStatus = Cache::get($statusKey) ?? 'success';
-
+            //if()
             $update = [
                 'status' => $jobStatus,
                 'counts' => [

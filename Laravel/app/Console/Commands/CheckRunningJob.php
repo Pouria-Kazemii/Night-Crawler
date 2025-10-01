@@ -81,7 +81,7 @@ class CheckRunningJob extends Command
                     $retries = $job->retries + 1;
 
                     $update['retries'] = $retries;
-                    
+
                     $job->load(['crawlerResults' => function ($query) {
                         $query->select('id', 'url', 'crawler_job_sender_id');
                     }]);
@@ -89,8 +89,8 @@ class CheckRunningJob extends Command
                     $gettedUrls = $job->crawlerResults->pluck('url')->toArray();
 
                     $remainingUrls = $job->urls;
-                    
-                    $newURls = array_diff($remainingUrls,$gettedUrls);
+
+                    $newURls = array_diff($remainingUrls, $gettedUrls);
 
                     $job->update(['urls' => $newURls]);
 
@@ -104,16 +104,16 @@ class CheckRunningJob extends Command
                         $update['node_id'] = $newNode->id;
                     }
 
-                    if (($newNode->active_jobs_count === 0 and $changed) || ($newNode->active_jobs_count === 1 and !$changed)) {
+                    if ($newNode->active_jobs_count === 0) {
 
                         dispatch(new ProcessSendingCrawlerJob($job))->onConnection('crawler-send');
                     } else {
 
                         $update['status'] = 'queued';
                     }
-                }
 
-                $job->update($update);
+                    $job->update($update);
+                }
             }
         }
     }
