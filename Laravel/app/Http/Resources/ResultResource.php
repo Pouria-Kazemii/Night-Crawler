@@ -8,6 +8,13 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ResultResource extends JsonResource
 {
+    private bool $checkExists;
+
+    public function __construct()
+    {
+        $this->checkExists = $this->checkExists();
+    }
+
     /**
      * Transform the resource into an array.
      *
@@ -16,56 +23,65 @@ class ResultResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            $this->resource->crawler['title'] ?? 'نامشخص' =>
-            [
-                'content' => [
-                    'url' => $this->final_url,
-                    'title' => $this->content['title'],
-                    'main_price' => $this->content['main_price'],
-                    'discount_price' => $this->content['discount_price'],
-                    'isbn' => $this->content['isbn'],
-                    'category' => $this->content['category'],
-                    'publisher' => $this->content['publisher'],
-                    'group' => $this->content['group'] ?? [],
-                    'field' => $this->content['field'] ?? $this->content['good_for'],
-                    'lesson' => $this->content['lesson'] ?? $this->content['subject'],
-                    'page_count' => $this->content['page_count'],
-                    'grade' => $this->content['grade'],
-                    'weight' => $this->content['weight'],
-                    'creators' => $this->content['creators'],
-                    'publish_year' => $this->content['publish_year'] ?? [],
-                    'description' => $this->content['description'],
-                    'image' => $this->getImageUrl(),
-                    'format' => $this->content['format'],
-                    'language' => $this->content['language'] ?? []
-                ]
-            ]
+            'source' => $this->resource->crawler['title'] ?? 'نامشخص',
+            'url' => $this->final_url,
+            'exists' => $this->checkExists,
+            'title' => $this->content['title'],
+            'main_price' => $this->getPrice(),
+            'discount_price' => $this->getPrice(false),
+            'isbn' => $this->content['isbn'],
+            'category' => $this->content['category'],
+            'publisher' => $this->content['publisher'],
+            'group' => $this->content['group'] ?? [],
+            'field' => $this->content['field'] ?? $this->content['good_for'],
+            'lesson' => $this->content['lesson'] ?? $this->content['subject'],
+            'page_count' => $this->content['page_count'],
+            'grade' => $this->content['grade'],
+            'weight' => $this->content['weight'],
+            'creators' => $this->content['creators'],
+            'publish_year' => $this->content['publish_year'] ?? [],
+            'description' => $this->content['description'],
+            'image' => $this->getImageUrl(),
+            'format' => $this->content['format'],
+            'language' => $this->content['language'] ?? []
         ];
     }
 
-    private function getMainPrice()
+    public function checkExists()
     {
-        if (empty($this->content['main_price']) or $this->content['main_price'] == null) {
-            if (empty($this->content['solo_price']) or $this->content['solo_price'] == null) {
-                "قیمت ندارد";
-            } else {
-                return $this->content['solo_price'][0];
-            }
+        if (
+            ($this->content['main_price']   ?? []) == [] &&
+            ($this->content['discount_price'] ?? []) == [] &&
+            ($this->content['solo_price'] ?? []) == []
+        ) {
+            $this->checkExists = false;
+            return false;
         } else {
-            return $this->content['main_price'][0];
+            $this->checkExists = true;
+            return true;
         }
     }
 
-    private function getDiscountPrice()
+    private function getPrice($main = true)
     {
-        if (empty($this->content['discount_price']) or $this->content['discount_price'] == null) {
-            if (empty($this->content['solo_price']) or $this->content['solo_price'] == null) {
-                "قیمت ندارد";
+        $crawler_id = $this->resource->crawler['id'];
+
+        if ($this->checkExists == false) {
+            return "ندارد";
+        }
+        
+        if ($crawler_id == '68cea2cef4df94b20a090967') {
+            if ($main) {
+                return (int)$this->content['solo_price'][0] * 10 ?? null;
             } else {
-                return $this->content['solo_price'][0];
+                return (int)$this->content['solo_price'][1] * 10 ?? null;
             }
         } else {
-            return $this->content['discount_price'][0];
+            if ($main) {
+                return (int)$this->content['main_price'][0] * 10 ;
+            } else {
+                return (int)$this->content['discount_price'][0]* 10;
+            }
         }
     }
 

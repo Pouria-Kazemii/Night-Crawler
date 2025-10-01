@@ -13,5 +13,5 @@ Route::post('/crawled-result', function (Request $request) {
 })->middleware(VerifyCrawlerToken::class);
 
 
-Route::get('get-results', [ResultController::class , 'index'])->middleware(VerifyCrawlerToken::class);
-Route::get('get-content', [ResultController::class , 'content'])->middleware(VerifyCrawlerToken::class);
+Route::get('results', [ResultController::class , 'index'])->middleware(VerifyCrawlerToken::class);
+Route::get('image', [ResultController::class , 'image'])->middleware(VerifyCrawlerToken::class);

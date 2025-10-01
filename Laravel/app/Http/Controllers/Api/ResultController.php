@@ -11,18 +11,26 @@ class ResultController extends Controller
 {
     public function index(Request $request)
     {
-        $isbn = $request->input('isbn');
+        $isbn = $request->input('isbn', false);
+        $crawler = $request->input('crawler_id', false);
 
-        $numbers = $this->ConvertNumbers($isbn);
+        $results =  CrawlerResult::query();
 
-        $results = CrawlerResult::where('content.isbn', $numbers['persian'])
-            ->orWhere('content.isbn', $numbers['english'])
-            ->get();
+        if ($isbn) {
+            $numbers = $this->ConvertNumbers($isbn);
 
-        return ResultResource::collection($results->load('crawler:title'));
+            $results->where('content.isbn', $numbers['persian'])
+                ->orWhere('content.isbn', $numbers['english']);
+        }
+
+        if ($crawler) {
+            $results->where('crawler_id', $crawler);
+        }
+
+        return ResultResource::collection($results->get()->load('crawler:title'));
     }
 
-    public function content(Request $request)
+    public function image(Request $request)
     {
         $isbn = $request->input('isbn');
 
@@ -38,6 +46,12 @@ class ResultController extends Controller
 
         if ($result != []) {
             preg_match('/src="([^"]+)"/i', $result[0], $matches);
+            return response()->json([
+                'data' => [
+                    'result' => $result,
+                    'matches' => $matches
+                ]
+            ]);
             if ($matches[1] != null) {
                 $content = file_get_contents($matches[1]);
                 return response($content, 200)->header('Content-Type', 'image/jpeg');
@@ -50,7 +64,6 @@ class ResultController extends Controller
             ]);
         }
     }
-
 
     function ConvertNumbers($string)
     {
