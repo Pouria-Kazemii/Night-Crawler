@@ -18,16 +18,19 @@ class ResultController extends Controller
         $results =  CrawlerResult::query();
 
         if ($isbn) {
+            
             $numbers = $this->ConvertNumbers($isbn);
 
-            $results->where('content.isbn', $numbers['persian'])
-                ->orWhere('content.isbn', $numbers['english']);
+            $results->where(function ($q) use ($numbers) {
+                $q->where('content.isbn', $numbers['persian'])
+                    ->orWhere('content.isbn', $numbers['english']);
+            });
         }
 
         if ($crawler) {
             $results->where('crawler_id', $crawler);
         }
-        
+
         return ResultResource::collection($results->paginate($per_page)->load('crawler:title'));
     }
 

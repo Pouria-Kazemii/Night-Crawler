@@ -71,10 +71,10 @@ class ResultResource extends JsonResource
         } else if ($crawler_id == '68db8e7d4ef90d050505faac') {
             if ($main) {
                 $number = ($this->content['main_price'][0] ?? 0);
-                $this->persianToEnglishInt($number);
+                return $this->persianToEnglishInt($number);
             } else {
                 $number = ($this->content['discount_price'][0] ?? 0);
-                $this->persianToEnglishInt($number);
+                return $this->persianToEnglishInt($number);
             }
         } else {
             if ($main) {
