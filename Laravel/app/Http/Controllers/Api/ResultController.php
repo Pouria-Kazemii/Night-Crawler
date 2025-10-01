@@ -27,7 +27,7 @@ class ResultController extends Controller
         if ($crawler) {
             $results->where('crawler_id', $crawler);
         }
-        
+
         if ($results->count() != 1) {
             return ResultResource::collection($results->paginate($per_page)->load('crawler:title'));
         } else {
@@ -37,31 +37,37 @@ class ResultController extends Controller
 
     public function image(Request $request)
     {
-        $isbn = $request->input('isbn');
+        $isbn = $request->input('isbn', false);
+        $url = $request->input('url', false);
 
-        $numbers = $this->ConvertNumbers($isbn);
+        if ($isbn) {
+            $numbers = $this->ConvertNumbers($isbn);
 
-        $result = CrawlerResult::where(function ($q) use ($numbers) {
-            $q->where('content.isbn', $numbers['persian'])
-                ->orWhere('content.isbn', $numbers['english']);
-        })->where('crawler_id', '68db8e7d4ef90d050505faac')
-            ->pluck('content.image')
-            ->toArray();
+            $result = CrawlerResult::where(function ($q) use ($numbers) {
+                $q->where('content.isbn', $numbers['persian'])
+                    ->orWhere('content.isbn', $numbers['english']);
+            })->where('crawler_id', '68db8e7d4ef90d050505faac')
+                ->pluck('content.image')
+                ->toArray();
 
 
-        if ($result != [] and !empty($result)) {
-            preg_match('/src="([^"]+)"/i', $result[0][0], $matches);
+            if ($result != [] and !empty($result)) {
+                preg_match('/src="([^"]+)"/i', $result[0][0], $matches);
 
-            if ($matches[1] != null) {
-                $content = file_get_contents($matches[1]);
-                return response($content, 200)->header('Content-Type', 'image/jpeg');
+                if ($matches[1] != null) {
+                    $content = file_get_contents($matches[1]);
+                    return response($content, 200)->header('Content-Type', 'image/jpeg');
+                }
+            } else {
+                return response()->json([
+                    'message' => 'not found',
+                    'data' => null,
+                    'status' => 404
+                ]);
             }
-        } else {
-            return response()->json([
-                'message' => 'not found',
-                'data' => null,
-                'status' => 404
-            ]);
+        } else if($url){       
+            $content = file_get_contents($url);
+            return response($content, 200)->header('Content-Type', 'image/jpeg');
         }
     }
 
