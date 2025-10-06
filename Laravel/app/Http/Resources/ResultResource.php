@@ -27,7 +27,7 @@ class ResultResource extends JsonResource
             'publisher' => $this->content['publisher'] ?? [],
             'group' => $this->content['group'] ?? [],
             'field' => $this->content['field'] ?? $this->content['good_for'] ?? null,
-            'lesson' => $this->content['lesson'] ?? $this->content['subject'] ?? null ,
+            'lesson' => $this->content['lesson'] ?? $this->content['subject'] ?? null,
             'page_count' => $this->content['page_count'] ?? [],
             'grade' => $this->content['grade'] ?? [],
             'weight' => $this->content['weight'] ?? [],
@@ -42,7 +42,7 @@ class ResultResource extends JsonResource
 
     public function checkExists()
     {
-        if (($this->contetnt['exists'] ?? null)  == 'ناموجود') {
+        if (($this->contetnt['exists'] ?? null)  == ['ناموجود']) {
             return false;
         } elseif (($this->contetnt['exists'] ?? null) == []) {
             return true;
