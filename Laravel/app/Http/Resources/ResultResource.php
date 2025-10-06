@@ -42,9 +42,9 @@ class ResultResource extends JsonResource
 
     public function checkExists()
     {
-        if (($this->contetnt['exists'] ?? null)  == ['ناموجود']) {
+        if (($this->content['exists'] ?? null)  == ['ناموجود']) {
             return false;
-        } elseif (($this->contetnt['exists'] ?? null) == []) {
+        } elseif (($this->content['exists'] ?? null) == []) {
             return true;
         } elseif (
             ($this->content['main_price']   ?? []) == [] &&
