@@ -19,30 +19,34 @@ class ResultResource extends JsonResource
             'source' => $this->crawler['title'] ?? 'نامشخص',
             'url' => $this->final_url,
             'exists' => $this->checkExists(),
-            'title' => $this->content['title'],
+            'title' => $this->content['title'] ?? [],
             'main_price' => $this->getPrice(),
             'discount_price' => $this->getPrice(false),
-            'isbn' => $this->content['isbn'],
-            'category' => $this->content['category'],
-            'publisher' => $this->content['publisher'],
+            'isbn' => $this->content['isbn'] ?? [],
+            'category' => $this->content['category'] ?? [],
+            'publisher' => $this->content['publisher'] ?? [],
             'group' => $this->content['group'] ?? [],
             'field' => $this->content['field'] ?? $this->content['good_for'],
             'lesson' => $this->content['lesson'] ?? $this->content['subject'],
-            'page_count' => $this->content['page_count'],
-            'grade' => $this->content['grade'],
-            'weight' => $this->content['weight'],
-            'creators' => $this->content['creators'],
+            'page_count' => $this->content['page_count'] ?? [],
+            'grade' => $this->content['grade'] ?? [],
+            'weight' => $this->content['weight'] ?? [],
+            'creators' => $this->content['creators'] ?? [],
             'publish_year' => $this->content['publish_year'] ?? [],
-            'description' => $this->content['description'],
+            'description' => $this->content['description'] ?? [],
             'image' => $this->getImageUrl(),
-            'format' => $this->content['format'],
+            'format' => $this->content['format'] ?? [],
             'language' => $this->content['language'] ?? []
         ];
     }
 
     public function checkExists()
     {
-        if (
+        if (($this->contetnt['exists'] ?? null)  == 'ناموجود') {
+            return false;
+        } elseif (($this->contetnt['exists'] ?? null) == []) {
+            return true;
+        } elseif (
             ($this->content['main_price']   ?? []) == [] &&
             ($this->content['discount_price'] ?? []) == [] &&
             ($this->content['solo_price'] ?? []) == []
@@ -62,7 +66,7 @@ class ResultResource extends JsonResource
 
         $crawler_id = $this->resource->crawler['id'];
 
-        if ($crawler_id == '68cea2cef4df94b20a090967') {
+        if ($crawler_id == '68cea2cef4df94b20a090967' or $crawler_id == '68e38279ab0d71fc000b390c') {
             if ($main) {
                 return (int) ($this->content['solo_price'][0] ?? 0) * 10000;
             } else {
