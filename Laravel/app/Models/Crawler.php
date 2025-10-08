@@ -23,7 +23,8 @@ class Crawler extends EloquentModel
         'base_url',              // string
         'start_urls',            // array
         'url_pattern',           // string
-        'range',                 // array
+        'update_range',          // array
+        'upgrade_range',         // array
         'pagination_rule',       // array (JSON)
         'auth',                  // array (JSON)
         'api_config',            // array (JSON)
@@ -32,30 +33,33 @@ class Crawler extends EloquentModel
         'link_filter_rules',     // array (only for seed)
         'crawl_delay',           // integer
         'last_run_at',           // datetime
+        'update_selectors',      // array (JSON)
         'selectors',             // array (JSON)
         'link_selector',         // string
         'two_step',              // array(JSON)
-        'next_run_at',           // datetime
-        'array_selector'         // boolean
+        'next_update_run_at',    // datetime
+        'next_upgrade_run_at',   // datetime
+        'array_selector',        // boolean
     ];
 
     public function casts(): array
     {
         return [
-            'start_urls'        => 'array',
-            'url_pattern'       => 'string',
-            'range'             => 'array',
-            'pagination_rule'   => 'array',
-            'auth'              => 'array',
-            'api_config'        => 'array',
-            'schedule'          => 'integer',
-            'selectors'         => 'array',
-            'link_selector'     => 'string',
-            'link_filter_rules' => 'array',
-            'crawl_delay'       => 'integer',
-            'two_step'          => 'array',
-            'last_run_at'       => 'datetime',
-            'next_run_at'       => 'datetime',
+            'start_urls'         => 'array',
+            'url_pattern'        => 'string',
+            'range'              => 'array',
+            'pagination_rule'    => 'array',
+            'auth'               => 'array',
+            'api_config'         => 'array',
+            'schedule'           => 'integer',
+            'selectors'          => 'array',
+            'link_selector'      => 'string',
+            'link_filter_rules'  => 'array',
+            'crawl_delay'        => 'integer',
+            'two_step'           => 'array',
+            'last_run_at'        => 'datetime',
+            'next_update_run_at' => 'datetime',
+            'next_upgrade_run_at'=> 'datetime',
         ];
     }
 
@@ -63,8 +67,11 @@ class Crawler extends EloquentModel
     {
         static::saving(function ($crawler) {
             // If schedule is set (not null/0) and was changed (or new record)
-            if (!empty($crawler->schedule) && $crawler->schedule > 0 && $crawler->isDirty('schedule')) {
-                $crawler->next_run_at = Carbon::now('UTC')->addMinutes((int)$crawler->schedule);
+            if (!empty($crawler->schedule['update']) && $crawler->schedule['update'] > 0 && $crawler->isDirty('schedule.update')) {
+                $crawler->next_update_run_at = Carbon::now('UTC')->addMinutes((int)$crawler->schedule['update']);
+            }
+            if (!empty($crawler->schedule['upgrade']) && $crawler->schedule['upgrade'] > 0 && $crawler->isDirty('schedule.upgrade')) {
+                $crawler->next_upgrade_run_at = Carbon::now('UTC')->addMinutes((int)$crawler->schedule['upgrade']);
             }
         });
     }

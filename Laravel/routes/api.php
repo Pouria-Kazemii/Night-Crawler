@@ -2,16 +2,17 @@
 
 use App\Http\Controllers\Api\ResultController;
 use App\Http\Middleware\VerifyCrawlerToken;
+use App\Http\Requests\CrawlerResultReceiveRequest;
 use App\Jobs\ProcessCrawledResultJob;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/crawled-result', function (Request $request) {
+Route::middleware(VerifyCrawlerToken::class)->group(function () {
 
-    ProcessCrawledResultJob::dispatch($request->all())->onConnection('crawler-receive');
+    Route::post('/crawled-result', function (CrawlerResultReceiveRequest $request) {
+        ProcessCrawledResultJob::dispatch($request->validated())->onConnection('crawler-receive');
+    });
 
-})->middleware(VerifyCrawlerToken::class);
+    Route::get('results', [ResultController::class, 'index']);
 
-
-Route::get('results', [ResultController::class , 'index'])->middleware(VerifyCrawlerToken::class);
-Route::get('image', [ResultController::class , 'image'])->middleware(VerifyCrawlerToken::class);
+    Route::get('image', [ResultController::class, 'image']);
+});

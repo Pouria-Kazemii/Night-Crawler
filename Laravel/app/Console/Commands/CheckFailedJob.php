@@ -28,7 +28,7 @@ class CheckFailedJob extends Command
      */
     public function handle()
     {
-        $failedJobs = CrawlerJobSender::where('status', 'failed')->get();
+        $failedJobs = CrawlerJobSender::where('status', 'failed')->where('retries' , '<=' , 3)->get();
 
         if (count($failedJobs) != 0) {
 
@@ -79,9 +79,10 @@ class CheckFailedJob extends Command
 
                         dispatch(new ProcessSendingCrawlerJob($job))->onConnection('crawler-send');
                     } else {
-
                         $update['status'] = 'queued';
                     }
+
+                    $update['failed_url'] = [] ;
 
                     $job->update($update);
 

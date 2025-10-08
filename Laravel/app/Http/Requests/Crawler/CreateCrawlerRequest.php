@@ -52,7 +52,7 @@ class CreateCrawlerRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'crawler_status' => ['required', Rule::in(['active', 'paused', 'completed', 'error' , 'running' , 'first_step_done'])],
+            'crawler_status' => ['required', Rule::in(['active', 'paused', 'completed', 'error', 'running', 'first_step_done'])],
             'crawler_type' => ['required', Rule::in(CrawlerTypes::ALL_STEP)],
             'base_url' => ['required', 'url'],
 
@@ -82,15 +82,18 @@ class CreateCrawlerRequest extends FormRequest
             'selectors' => $this->check(CrawlerTypes::SELECTOR)
                 ? ['required', 'array']
                 : ['nullable', 'array'],
-            
 
-            'array_selector' => ['nullable' , Rule::in(['true' , 'false'])],    
+
+            'array_selector' => $this->check(CrawlerTypes::SELECTOR)
+                ? ['required', Rule::in(['true', 'false'])]
+                : ['nullable', Rule::in(['true', 'false'])],
 
             'link_selector' => ['nullable', 'string'],
 
             'two_step' => $this->check(['two_step']) ? ['required', 'array'] : ['nullable', 'array'],
             'two_step.first' => $this->check(['two_step']) ? ['required', Rule::in(CrawlerTypes::FIRST_STEP)] : ['nullable', Rule::in(CrawlerTypes::FIRST_STEP)],
             'two_step.second' => $this->check(['two_step']) ? ['required', Rule::in(CrawlerTypes::SECOND_STEP)] : ['nullable', Rule::in(CrawlerTypes::SECOND_STEP)],
+            'just_new_data' => $this->check(['two_step'])  ? ['required', Rule::in(['true', 'false'])] : ['nullable', Rule::in(['true', 'false'])],
 
             'schedule' => ['nullable', 'integer'],
 
@@ -150,7 +153,10 @@ class CreateCrawlerRequest extends FormRequest
             'dynamic_limit.required' => 'انتخاب تعداد بارگیری های مجدد برای این نوع خزشگر الزامی میباشد',
 
             'two_step.first.required' => 'انتخاب مرحله اول برای این نوع از خزشگر الزامی است',
-            'two_step.second.required' => 'انتخاب مرحله دوم برای این نوع از خزشگر الزامی است'
+            'two_step.second.required' => 'انتخاب مرحله دوم برای این نوع از خزشگر الزامی است',
+            'just_new_data.required' => 'لطفا مقدار را انتخاب کنید',
+            'array_selector.required' => 'لطفا مقدار را انتخاب کنید'
+
         ];
     }
 

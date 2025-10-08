@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\ProcessSendingCrawlerJob;
+use App\Models\Crawler;
 use App\Models\CrawlerJobSender;
 use App\Models\CrawlerNode;
 use App\Models\CrawlerResult;

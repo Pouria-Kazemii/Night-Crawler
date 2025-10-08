@@ -9,42 +9,60 @@ use App\Models\Crawler;
 use App\Models\CrawlerJobSender;
 use App\Models\CrawlerResult;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
 
 class CreateNodeRequest implements CreateNodeRequestInterface
 {
-
-    public function go(Crawler $crawler, int $retries = 0)
+    public function go(Crawler $crawler, bool $isUpdate)
     {
-        $urls = getUrls($crawler);
-
-        $is_two_step = $crawler->crawler_type == 'two_step';
+        $step = $crawler->crawler_type == 'two_step' ? 1 : 0;
 
         $crawlerId = (string)$crawler->_id;
 
-        $step = $is_two_step ? 1 : 0;
+        $urls = getUrls($crawler, $isUpdate, $step);
 
-        $is_two_step ?
-            $payloadOptions = getOptions($crawler, $crawler->two_step['first'], $step) :
-            $payloadOptions = getOptions($crawler);
+        if ($step === 1 and $isUpdate) {
 
-        return $this->sendRequest($crawler, $urls, $payloadOptions, $crawlerId, $step);
+            return $this->goSecondStep();
+        
+        } else {
+
+            $is_two_step ?
+                $payloadOptions = getOptions($crawler, $isUpdate, $crawler->two_step['first'], $step) :
+                $payloadOptions = getOptions($crawler, $isUpdate);
+            return $this->sendRequest($crawler, $urls, $payloadOptions, $crawlerId, $step);
+        }
     }
 
-    public function goSecondStep(string $crawlerId, int $retries = 0, $jobs_id = null)
+    public function goSecondStep(string $crawlerId, $jobs_id = null)
     {
-        $results = CrawlerResult::whereIn('crawler_job_sender_id', $jobs_id)
-            ->where('content_changed', true)
-            ->get();
-
         $crawler = Crawler::find($crawlerId);
 
-        if ($results != null and count($results) > 0) {
+        $results = CrawlerResult::query();
 
-            foreach ($results as $arr) {
-                $urls[] = isset($arr->content_dif)
-                    ? $arr->content_dif
-                    : $arr->content;
+        $results->whereIn('crawler_job_sender_id', $jobs_id);
+
+        if ($crawler->just_new_data === 'true') {
+            $results->where('content_changed', true);
+        }
+
+        $finalResults = $results->get();
+
+        if ($finalResults != null and count($finalResults) > 0) {
+
+            if ($crawler->just_new_data === 'true') {
+
+                foreach ($finalResults as $arr) {
+
+                    $urls[] = isset($arr->content_dif)
+                        ? $arr->content_dif
+                        : $arr->content;
+                }
+            } else {
+
+                foreach ($finalResults as $arr) {
+
+                    $urls[] = $arr->content;
+                }
             }
 
             $urls = Arr::flatten($urls);
@@ -64,7 +82,7 @@ class CreateNodeRequest implements CreateNodeRequestInterface
     }
 
 
-    public function sendRequest(Crawler $crawler, array $urls, array $payloadOptions, string $crawlerId, int $step, int $retries = 0)
+    public function sendRequest(Crawler $crawler, array $urls, array $payloadOptions, string $crawlerId, int $step)
     {
         $sortedNodes = CrawlerNode::sortedActive()
             ->get()
@@ -99,10 +117,17 @@ class CreateNodeRequest implements CreateNodeRequestInterface
                     'node_id'       => $node->_id,
                     'urls'          => $urlChunk->values()->all(),
                     'status'        => 'queued',
-                    'retries'       => $retries,
+                    'retries'       => 0,
                     'step'          => $step,
                     'payload'       => $payloadOptions,
                     'processed'     => false,
+                    'counts'        => [
+                        'url' => count($urls),
+                        'success' => 0,
+                        'repeated' => 0,
+                        'changed' => 0,
+                        'not_changed' => 0,
+                    ],
                     'started_at'    => now(),
                 ]);
 
