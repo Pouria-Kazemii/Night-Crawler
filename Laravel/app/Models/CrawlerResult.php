@@ -20,10 +20,11 @@ class CrawlerResult extends EloquentModel
         'crawler_id',
         'final_url',
         'url',
-        'content',
-        'encrypt_url',
-        'content_changed',
-        'content_dif'
+        'content',             //array or object
+        'encrypt_url',         //string
+        'content_upgrade',     //bool
+        'content_update',      //bool
+        'content_difference',  //array or object
     ];
 
     public function crawlerJobSender()

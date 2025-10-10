@@ -3,9 +3,12 @@
 use App\Models\Crawler;
 
 if (!function_exists('getUrls')) {
-    function getUrls(Crawler $crawler): array
+    function getUrls(Crawler $crawler, bool $isUpdate , int $step): array
     {
         $baseUrl = $crawler->base_url;
+
+        $isFirst = ($crawler->last_run_at ?? null) != null;
+
         if ($crawler->start_urls[0] != '') {
 
             $fullUrls = array_map(function ($path) use ($baseUrl) {
@@ -15,10 +18,14 @@ if (!function_exists('getUrls')) {
             return $fullUrls;
         } elseif ($crawler->url_pattern != null) {
 
-            $start = (int) $crawler->range['start'];
-            $end = (int) $crawler->range['end'];
+            if ($isUpdate) {
+                $start = (int) $crawler->range['start'];
+                $end = (int) $crawler->range['end'];
+            } else {
+                $start = (int) $crawler->upgrade_range['start'];
+                $end = (int) $crawler->upgrade_range['end'];
+            }
 
-            // Build URLs
             $urls = [];
             for ($i = $start; $i <= $end; $i++) {
                 $path = str_replace('{id}', $i, $crawler->url_pattern);
@@ -34,11 +41,13 @@ if (!function_exists('getUrls')) {
 
 if (!function_exists('getOptions')) {
 
-    function getOptions(Crawler $crawler, $type = null)
+    function getOptions(Crawler $crawler, bool $isUpdate, $type = null, $step = 0)
     {
         if ($type === null) {
             $type = $crawler->crawler_type;
         }
+
+        $isFirst = ($crawler->last_run_at ?? null) != null;
 
         switch ($type) {
 
@@ -48,7 +57,7 @@ if (!function_exists('getOptions')) {
                     'options' => [
                         'separate_items' => $crawler->array_selector != null ? $crawler->array_selector : false,
                         'crawl_delay' => $crawler->crawl_delay != null ? $crawler->crawl_delay : 0,
-                        'selectors' => $crawler->selectors
+                        'selectors' => ($isUpdate and !$isFirst)  ? $crawler->update_selectors : $crawler->selectors
                     ]
                 ];
                 break;
@@ -65,15 +74,25 @@ if (!function_exists('getOptions')) {
                 break;
 
             case 'dynamic';
+
+                if ($step == 1) {
+                    $selectorKey = 'selector';
+                    $selectorValue = $crawler->link_selector;
+                } else {
+                    $selectorKey = 'selectors';
+                    $selectorValue = ($isUpdate and !$isFirst) ? $crawler->update_selectors : $crawler->selectors;
+                }
+
                 return [
                     'type' => $type,
                     'options' => [
                         'separate_items' => $crawler->array_selector != null ? $crawler->array_selector : false,
                         'crawl_delay' => $crawler->crawl_delay != null ? $crawler->crawl_delay : 0,
-                        'selectors' => $crawler->selectors,
+                        $selectorKey => $selectorValue,
                         'max_scrolls' => $crawler->dynamic_limit
                     ]
                 ];
+
                 break;
 
             case 'authenticated';
@@ -91,7 +110,7 @@ if (!function_exists('getOptions')) {
                     'options' => [
                         'separate_items' => $crawler->array_selector != null ? $crawler->array_selector : false,
                         'crawl_delay' => $crawler->crawl_delay != null ? $crawler->crawl_delay : 0,
-                        'selectors' => $crawler->selectors
+                        'selectors' => ($isUpdate and !$isFirst) ? $crawler->update_selectors : $crawler->selectors
                     ]
                 ];
                 break;
@@ -113,7 +132,7 @@ if (!function_exists('getOptions')) {
                         'separate_items' => $crawler->array_selector != null ? $crawler->array_selector : false,
                         'crawl_delay' => $crawler->crawl_delay != null ? $crawler->crawl_delay : 0,
                         'limit' => $crawler->pagination_rule['limit'] ?? 1,
-                        'selectors' => $crawler->selectors
+                        'selectors' => ($isUpdate and !$isFirst) ? $crawler->update_selectors : $crawler->selectors
                     ]
                 ];
                 break;

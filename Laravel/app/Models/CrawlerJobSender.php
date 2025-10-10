@@ -53,7 +53,7 @@ class CrawlerJobSender extends EloquentModel
             $priorityMap = [
                 'running' => 1,
                 'queued' => 2,
-                'error' => 3,
+                'failed' => 3,
                 'success' => 4
             ];
 

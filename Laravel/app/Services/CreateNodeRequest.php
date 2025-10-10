@@ -12,35 +12,57 @@ use Illuminate\Support\Arr;
 
 class CreateNodeRequest implements CreateNodeRequestInterface
 {
-
-    public function go(Crawler $crawler, int $retries = 0)
+    public function go(Crawler $crawler, bool $isUpdate)
     {
-        $urls = getUrls($crawler);
+        $step = $crawler->crawler_type == 'two_step' ? 1 : 0;
 
         $crawlerId = (string)$crawler->_id;
 
-        $crawler->crawler_type != 'two_step' ? $payloadOptions = getOptions($crawler) :
-            $payloadOptions = getOptions($crawler, $crawler->two_step['first']);
+        $urls = getUrls($crawler, $isUpdate, $step);
 
-        $step = $crawler->crawler_type == 'two_step' ? 1 : 0;
+        if ($step === 1 and $isUpdate) {
 
-        return $this->sendRequest($crawler, $urls, $payloadOptions, $crawlerId, $step);
+            return $this->goSecondStep();
+        
+        } else {
+
+            $is_two_step ?
+                $payloadOptions = getOptions($crawler, $isUpdate, $crawler->two_step['first'], $step) :
+                $payloadOptions = getOptions($crawler, $isUpdate);
+            return $this->sendRequest($crawler, $urls, $payloadOptions, $crawlerId, $step);
+        }
     }
 
-    public function goSecondStep(string $crawlerId, int $retries = 0, $jobs_id = null)
+    public function goSecondStep(string $crawlerId, $jobs_id = null)
     {
-        $results = CrawlerResult::whereIn('crawler_job_sender_id', $jobs_id)
-            ->where('content_changed', true)
-            ->get();
-
         $crawler = Crawler::find($crawlerId);
 
-        if ($results != null and count($results) > 0) {
+        $results = CrawlerResult::query();
 
-            foreach ($results as $arr) {
-                $urls[] = isset($arr->content_dif)
-                    ? $arr->content_dif
-                    : $arr->content;
+        $results->whereIn('crawler_job_sender_id', $jobs_id);
+
+        if ($crawler->just_new_data === 'true') {
+            $results->where('content_changed', true);
+        }
+
+        $finalResults = $results->get();
+
+        if ($finalResults != null and count($finalResults) > 0) {
+
+            if ($crawler->just_new_data === 'true') {
+
+                foreach ($finalResults as $arr) {
+
+                    $urls[] = isset($arr->content_dif)
+                        ? $arr->content_dif
+                        : $arr->content;
+                }
+            } else {
+
+                foreach ($finalResults as $arr) {
+
+                    $urls[] = $arr->content;
+                }
             }
 
             $urls = Arr::flatten($urls);
@@ -60,7 +82,7 @@ class CreateNodeRequest implements CreateNodeRequestInterface
     }
 
 
-    public function sendRequest(Crawler $crawler, array $urls, array $payloadOptions, string $crawlerId, int $step, int $retries = 0)
+    public function sendRequest(Crawler $crawler, array $urls, array $payloadOptions, string $crawlerId, int $step)
     {
         $sortedNodes = CrawlerNode::sortedActive()
             ->get()
@@ -81,30 +103,37 @@ class CreateNodeRequest implements CreateNodeRequestInterface
                 'key' => 'error',
                 'message' => 'هیج پروکسی فعالی وجود ندارد'
             ];
-        }
+        } else {
+            // 2. Split URLs into small chunks (e.g., 10 per chunk)
+            $chunks = collect($urls)->chunk(ceil(count($urls) / $sortedNodes->count()))->values();
 
-        // 2. Split URLs into small chunks (e.g., 10 per chunk)
-        $chunks = collect($urls)->chunk(ceil(count($urls) / $sortedNodes->count()))->values();
+            foreach ($chunks as $index => $urlChunk) {
+                // 3. Assign node in round-robin fashion
+                $node = $sortedNodes[$index % $sortedNodes->count()];
 
-        foreach ($chunks as $index => $urlChunk) {
-            // 3. Assign node in round-robin fashion
-            $node = $sortedNodes[$index % $sortedNodes->count()];
+                // 4. Create crawler_jobs record
+                $sender = CrawlerJobSender::create([
+                    'crawler_id'    => $crawlerId,
+                    'node_id'       => $node->_id,
+                    'urls'          => $urlChunk->values()->all(),
+                    'status'        => 'queued',
+                    'retries'       => 0,
+                    'step'          => $step,
+                    'payload'       => $payloadOptions,
+                    'processed'     => false,
+                    'counts'        => [
+                        'url' => count($urls),
+                        'success' => 0,
+                        'repeated' => 0,
+                        'changed' => 0,
+                        'not_changed' => 0,
+                    ],
+                    'started_at'    => now(),
+                ]);
 
-            // 4. Create crawler_jobs record
-            $sender = CrawlerJobSender::create([
-                'crawler_id'    => $crawlerId,
-                'node_id'       => $node->_id,
-                'urls'          => $urlChunk->values()->all(),
-                'status'        => 'queued',
-                'retries'       => $retries,
-                'step'          => $step,
-                'payload'       => $payloadOptions,
-                'processed'     => false,
-                'started_at'    => now(),
-            ]);
-
-            if (!CrawlerJobSender::where('status', 'running')->where('node_id', $node->_id)->exists()) {
-                dispatch(new ProcessSendingCrawlerJob($sender))->onConnection('crawler-send');
+                if (!CrawlerJobSender::where('status', 'running')->where('node_id', $node->_id)->exists()) {
+                    dispatch(new ProcessSendingCrawlerJob($sender))->onConnection('crawler-send');
+                }
             }
 
             return [

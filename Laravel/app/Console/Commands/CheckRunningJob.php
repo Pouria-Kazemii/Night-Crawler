@@ -3,12 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Jobs\ProcessSendingCrawlerJob;
+use App\Models\Crawler;
 use App\Models\CrawlerJobSender;
 use App\Models\CrawlerNode;
 use App\Models\CrawlerResult;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
 
 class CheckRunningJob extends Command
 {
@@ -35,7 +35,7 @@ class CheckRunningJob extends Command
     public function handle()
     {
         $jobs = CrawlerJobSender::where('status', 'running')
-            ->where('last_used_at', '<=', Carbon::now('UTC')->addMinutes(-1))
+            ->where('last_used_at', '<=', Carbon::now('UTC')->addMinutes(-10))
             ->with('crawler')
             ->get();
 
@@ -53,7 +53,7 @@ class CheckRunningJob extends Command
         $filteredJobs = $jobs->filter(function ($job) use ($latestResults) {
             $latestResult = $latestResults->get($job->id);
             return is_null($latestResult) ||
-                $latestResult->updated_at <= Carbon::now('UTC')->addMinutes(-1);
+                $latestResult->updated_at <= Carbon::now('UTC')->addMinutes(-10);
         });
 
         if (count($filteredJobs) > 0) {
@@ -83,34 +83,38 @@ class CheckRunningJob extends Command
 
                     $update['retries'] = $retries;
 
+                    $job->load(['crawlerResults' => function ($query) {
+                        $query->select('id', 'url', 'crawler_job_sender_id');
+                    }]);
+
+                    $gettedUrls = $job->crawlerResults->pluck('url')->toArray();
+
+                    $remainingUrls = $job->urls;
+
+                    $newURls = array_diff($remainingUrls, $gettedUrls);
+
+                    $job->update(['urls' => $newURls]);
+
                     if ($newNode == null) {
                         $changed = false;
                         $newNode = $sortedNodes->first();
                     }
 
                     if ($changed) {
-                        $job->load('crawlerResults')->delete();
 
                         $update['node_id'] = $newNode->id;
                     }
 
-                    Cache::forget($job->_id . '_status');
-                    Cache::forget($job->_id . '_failed_urls');
-                    Cache::forget($job->_id . '_success_count');
-                    Cache::forget($job->_id . '_repeated_count');
-                    Cache::forget($job->_id . '_changed_count');
-                    Cache::forget($job->_id . '_new_count');
-
-                    if (($newNode->active_jobs_count === 0 and $changed) || ($newNode->active_jobs_count === 1 and !$changed)) {
+                    if ($newNode->active_jobs_count === 0) {
 
                         dispatch(new ProcessSendingCrawlerJob($job))->onConnection('crawler-send');
                     } else {
 
                         $update['status'] = 'queued';
                     }
-                }
 
-                $job->update($update);
+                    $job->update($update);
+                }
             }
         }
     }

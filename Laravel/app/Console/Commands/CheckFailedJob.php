@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Models\CrawlerJob;
+use App\Jobs\ProcessSendingCrawlerJob;
+use App\Models\CrawlerJobSender;
+use App\Models\CrawlerNode;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 
 class CheckFailedJob extends Command
 {
@@ -27,15 +28,67 @@ class CheckFailedJob extends Command
      */
     public function handle()
     {
-        $failedJobs = CrawlerJob::where('status' , 'failed')->get();
-        
-        if(count($failedJobs) == 0){
-            return Log::alert('There is no failed job' , ['app\\Console\\Commandd\\CheckFailedJob.php']);
-        }
+        $failedJobs = CrawlerJobSender::where('status', 'failed')->where('retries' , '<=' , 3)->get();
 
-        foreach($failedJobs->get() as $failedJob){
-            dd($failedJob->failed);
-            $failedJob->failedUrl;
+        if (count($failedJobs) != 0) {
+
+            $sortedNodes = CrawlerNode::sortedActive()
+                ->get()
+                ->map(function ($node) {
+                    $node->active_jobs_count = $node->crawlerJobSender()
+                        ->whereIn('status', ['running', 'queued'])
+                        ->count();
+                    return $node;
+                })
+                ->sortBy(function ($node) {
+                    return [$node->active_jobs_count, $node->latency];
+                })
+                ->values();
+
+            if ($sortedNodes->count() > 0) {
+
+                foreach ($failedJobs as $job) {
+
+                    $currentCrawlDelay = data_get($job->payload, 'options.crawl_delay', 1);
+
+                    $retries = $job->retries + 1;
+
+                    $newUrls = collect($job->failed_url)->pluck('url')->toArray();
+
+                    $newNode = $sortedNodes->firstWhere('_id', '!=', $job->node_id);
+
+                    $newDelay = $currentCrawlDelay + $retries;
+
+                    $update['urls'] = $newUrls;
+                    $update['retries'] = $retries;
+                    $update['payload.options.crawl_delay'] = (int) $newDelay;
+
+                    $changed = true;
+
+                    if ($newNode == null) {
+                        $changed = false;
+                        $newNode = $sortedNodes->first();
+                    }
+
+                    if ($changed) {
+
+                        $update['node_id'] = $newNode->id;
+                    }
+
+                    if ($newNode->active_jobs_count === 0) {
+
+                        dispatch(new ProcessSendingCrawlerJob($job))->onConnection('crawler-send');
+                    } else {
+                        $update['status'] = 'queued';
+                    }
+
+                    $update['failed_url'] = [] ;
+
+                    $job->update($update);
+
+                    $job->load('crawler')->update(['crawl_delay' => $newDelay]);
+                }
+            }
         }
     }
 }
