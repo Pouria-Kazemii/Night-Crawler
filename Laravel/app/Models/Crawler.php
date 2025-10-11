@@ -23,7 +23,7 @@ class Crawler extends EloquentModel
         'base_url',              // string
         'start_urls',            // array
         'url_pattern',           // string
-        'update_range',          // array
+        'range',          // array
         'upgrade_range',         // array
         'pagination_rule',       // array (JSON)
         'auth',                  // array (JSON)

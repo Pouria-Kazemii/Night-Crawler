@@ -114,6 +114,28 @@
                         </div>
                     </div>
 
+
+                    <!-- Range: start / end -->
+                    <div class="flex gap-4">
+                        <div class="w-1/2">
+                            <label for="upgrade_range_start" class="block text-sm font-bold text-gray-700">شروع (start)</label>
+                            <input type="number" name="upgrade_range[start]" id="upgrade_range" value="{{ old('upgrade_range.start') }}"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                            @error('upgrade_range.start')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div class="w-1/2">
+                            <label for="upgrade_range_end" class="block text-sm font-bold text-gray-700">پایان (end)</label>
+                            <input type="number" name="upgrade_range[end]" id="upgrade_range_end" value="{{ old('upgrade_range.end') }}"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                            @error('upgrade_range.end')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
+
                     <!-- Schedule -->
                     <div>
                         <label for="schedule" class="block text-sm font-bold text-gray-700">زمان‌ بندی بر حسب
@@ -218,6 +240,7 @@
                             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
+
 
 
                     <!-- Selectors Section -->

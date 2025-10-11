@@ -3,11 +3,9 @@
 use App\Models\Crawler;
 
 if (!function_exists('getUrls')) {
-    function getUrls(Crawler $crawler, bool $isUpdate , int $step): array
+    function getUrls(Crawler $crawler, bool $isUpdate): array
     {
         $baseUrl = $crawler->base_url;
-
-        $isFirst = ($crawler->last_run_at ?? null) != null;
 
         if ($crawler->start_urls[0] != '') {
 

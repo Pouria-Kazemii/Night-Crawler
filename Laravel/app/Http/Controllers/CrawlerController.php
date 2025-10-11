@@ -9,6 +9,7 @@ use App\Models\Crawler;
 use App\Models\CrawlerJobSender;
 use App\Models\CrawlerResult;
 use App\Services\CreateNodeRequest;
+use Illuminate\http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -40,7 +41,7 @@ class CrawlerController extends Controller
     public function edit(Crawler $crawler): View
     {
         $crawlerTypes = CrawlerTypes::all();
-        
+
         return view('crawler.edit', compact('crawler','crawlerTypes'));
     }
 
@@ -61,12 +62,15 @@ class CrawlerController extends Controller
             ->with('status', 'خزشگر با موفقیت حذف شد');
     }
 
-    public function go(Crawler $crawler): RedirectResponse
+    public function go(Request $request ,Crawler $crawler): RedirectResponse
     {
+        $validated = $request->validate([
+            'update' => 'required|boolean'
+        ]);
 
         $crawlerManager = app(CreateNodeRequest::class);
 
-        $result = $crawlerManager->go($crawler);
+        $result = $crawlerManager->go($crawler,$validated['update']);
 
         return redirect()->route('crawler.index')
             ->with($result['key'], $result['message']);

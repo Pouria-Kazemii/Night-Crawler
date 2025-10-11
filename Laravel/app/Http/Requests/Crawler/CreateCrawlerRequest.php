@@ -62,6 +62,8 @@ class CreateCrawlerRequest extends FormRequest
             'url_pattern' => ['nullable', 'string'],
             'range.start' => ['nullable', 'integer', 'min:1'],
             'range.end' => ['nullable', 'integer', 'min:1'],
+            'upgrade_range.start' => ['nullable', 'integer', 'min:1'],
+            'upgrade_range.end' => ['nullable', 'integer', 'min:1'],
 
             'pagination_rule' => $this->check(['paginated']) ? ['required', 'array'] : ['nullable', 'array'],
             'pagination_rule.next_page_selector' => $this->check(['paginated']) ? ['required', 'string'] : ['nullable', 'string'],

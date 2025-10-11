@@ -69,8 +69,6 @@ class ProcessCrawledResultJob implements ShouldQueue
 
                         $contentDifference = array_values(array_diff($newContent, $oldContent));
 
-                        $updateData['content_difference'] = $contentDifference;
-
                         $resultCount->incrementsChanged(count($contentDifference));
 
                         $resultCount->incrementsNotChanged(count($oldContent) - count($contentDifference));
@@ -107,11 +105,6 @@ class ProcessCrawledResultJob implements ShouldQueue
 
                     $oldUpdateContent = $existingResult->content_difference;
 
-
-                    if ($oldUpdateContent == null and $existingResult->content_update) {
-                        $existingResult
-                    }
-
                     $resultCount->incrementRepeated();
 
                     $contentChanged = $oldUpdateContent !== $newContent;
@@ -132,7 +125,6 @@ class ProcessCrawledResultJob implements ShouldQueue
                         $existingResult->update([
                             'crawler_job_sender_id' => $jobId,
                             'content_update' => false,
-                            'content_difference' => [],
                         ]);
                     }
                 } else {
@@ -202,26 +194,27 @@ class ProcessCrawledResultJob implements ShouldQueue
                             'crawler_status' => 'first_step_done'
                         ];
 
-                        app(\App\Services\CreateNodeRequest::class)->goSecondStep($crawlerInstance->_id, 0, $allJobs?->pluck('id'));
+                        app(\App\Services\CreateNodeRequest::class)->goSecondStep($crawlerInstance->_id, false , $allJobs?->pluck('id'));
                     } else {
 
                         $haveSchedule = false;
 
-                        if (!empty($crawlerInstance->schedule['update']) and $crawlerInstance->schedule['update'] > 0 ) {
-                            $crawlerUpdate = [
-                                'crawler_status' => 'active',
-                                'next_update_run_at' => Carbon::now('UTC')->addMinutes((int)$crawlerInstance->schedule['update'])
-                            ];
-                            $haveSchedule = true;
-                        }
-
-                        if (!empty($crawlerInstance->schedule['upgrade']) and $crawlerInstance->schedule['upgrade'] > 0) {
-                            $crawlerUpdate = [
-                                'crawler_status' => 'active',
-                                'next_upgrade_run_at' => Carbon::now('UTC')->addMinutes((int)$crawlerInstance->schedule['upgrade'])
-                            ];
-                            $haveSchedule = true;
-                        } 
+                        //TODO :  FIX UPDATE ADN UPGRADE SCHEDULE
+//                        if (!empty($crawlerInstance->schedule['update']) and $crawlerInstance->schedule['update'] > 0 ) {
+//                            $crawlerUpdate = [
+//                                'crawler_status' => 'active',
+//                                'next_update_run_at' => Carbon::now('UTC')->addMinutes((int)$crawlerInstance->schedule['update'])
+//                            ];
+//                            $haveSchedule = true;
+//                        }
+//
+//                        if (!empty($crawlerInstance->schedule['upgrade']) and $crawlerInstance->schedule['upgrade'] > 0) {
+//                            $crawlerUpdate = [
+//                                'crawler_status' => 'active',
+//                                'next_upgrade_run_at' => Carbon::now('UTC')->addMinutes((int)$crawlerInstance->schedule['upgrade'])
+//                            ];
+//                            $haveSchedule = true;
+//                        }
 
                         if(!$haveSchedule) {
 

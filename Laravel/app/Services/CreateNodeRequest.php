@@ -18,67 +18,83 @@ class CreateNodeRequest implements CreateNodeRequestInterface
 
         $crawlerId = (string)$crawler->_id;
 
-        $urls = getUrls($crawler, $isUpdate, $step);
+        $isFirst = ($crawler->last_run_at ?? null) != null;
 
-        if ($step === 1 and $isUpdate) {
+        $urls = getUrls($crawler, $isUpdate);
 
-            return $this->goSecondStep();
-        
+        if ($step === 1 and $isUpdate and !$isFirst) {
+
+            return $this->goSecondStep($crawlerId , true , $isFirst);
+
         } else {
-
-            $is_two_step ?
+            $step === 1 ?
                 $payloadOptions = getOptions($crawler, $isUpdate, $crawler->two_step['first'], $step) :
                 $payloadOptions = getOptions($crawler, $isUpdate);
             return $this->sendRequest($crawler, $urls, $payloadOptions, $crawlerId, $step);
         }
     }
 
-    public function goSecondStep(string $crawlerId, $jobs_id = null)
+    public function goSecondStep(string $crawlerId, bool $special = false , $jobs_id = null)
     {
         $crawler = Crawler::find($crawlerId);
 
         $results = CrawlerResult::query();
 
-        $results->whereIn('crawler_job_sender_id', $jobs_id);
+        if ($special) {
 
-        if ($crawler->just_new_data === 'true') {
-            $results->where('content_changed', true);
-        }
+            $jobs = CrawlerJobSender::where('crawler_id', $crawlerId)->where('step', '!=', 1);
+            $jobs_id = $jobs->pluck('id')->toArray();
+            $results->whereIn('crawler_job_sender_id', $jobs_id);
 
-        $finalResults = $results->get();
+            $finalResults = $results->get();
 
-        if ($finalResults != null and count($finalResults) > 0) {
+            if ($finalResults->isEmpty()) {
+                $crawler->schedule == null ?
+                    $crawler->update([
+                        'status' => 'completed',
+                    ]) :
+                    $crawler->update([
+                        'status' => 'active',
+                    ]);
+            }
 
-            if ($crawler->just_new_data === 'true') {
+            $urls = $finalResults->pluck('url')->toArray();
 
+        } else {
+
+            $results->whereIn('crawler_job_sender_id', $jobs_id);
+
+            $results->where('content_upgrade', true);
+
+            $finalResults = $results->get();
+
+            if ($crawler->last_used_at == null) {
                 foreach ($finalResults as $arr) {
-
-                    $urls[] = isset($arr->content_dif)
-                        ? $arr->content_dif
-                        : $arr->content;
+                    $urls[] = $arr->content;
                 }
             } else {
-
                 foreach ($finalResults as $arr) {
-
-                    $urls[] = $arr->content;
+                    $urls[] = $arr->content_difference;
                 }
             }
 
-            $urls = Arr::flatten($urls);
+            if ($finalResults->isEmpty()) {
+                $crawler->schedule == null ?
+                    $crawler->update([
+                        'status' => 'completed',
+                    ]) :
+                    $crawler->update([
+                        'status' => 'active',
+                    ]);
+            }
 
-            $payloadOptions = getOptions($crawler, $crawler->two_step['second']);
-
-            $this->sendRequest($crawler, $urls, $payloadOptions, $crawler->_id, 2);
-        } else {
-            $crawler->schedule == null ?
-                $crawler->update([
-                    'status' => 'completed',
-                ]) :
-                $crawler->update([
-                    'status' => 'active',
-                ]);
         }
+
+        $urls = Arr::flatten($urls);
+
+        $payloadOptions = getOptions($crawler, $crawler->two_step['second']);
+
+        $this->sendRequest($crawler, $urls, $payloadOptions, $crawler->_id, 2);
     }
 
 
