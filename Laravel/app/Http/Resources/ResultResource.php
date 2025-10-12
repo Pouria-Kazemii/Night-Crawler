@@ -42,7 +42,8 @@ class ResultResource extends JsonResource
 
     public function checkExists()
     {
-        if (($this->content['exists'] ?? null)  == ['ناموجود']) {
+        $exists = $this->content['exists'] ?? null;
+        if ($exists == ['ناموجود'] or  $exists == ['موجود نیست']) {
             return false;
         } elseif (($this->content['exists'] ?? null) == []) {
             return true;
@@ -64,29 +65,18 @@ class ResultResource extends JsonResource
             return 0;
         }
 
-        $crawler_id = $this->resource->crawler['id'];
+        $mainPrice = $this->content['main_price'][0] ?? $this->content['solo_price'][0] ?? 0;
+        $discountPrice = $this->content['discount_price'] ?? $this->content['solo_price'][1] ?? 0;
 
-        if ($crawler_id == '68cea2cef4df94b20a090967' or $crawler_id == '68e38279ab0d71fc000b390c') {
-            if ($main) {
-                return (int) ($this->content['solo_price'][0] ?? 0) * 10000;
-            } else {
-                return (int) ($this->content['solo_price'][1] ?? 0) * 10000;
-            }
-        } else if ($crawler_id == '68db8e7d4ef90d050505faac') {
-            if ($main) {
-                $number = ($this->content['main_price'][0] ?? 0);
-                return $this->persianToEnglishInt($number);
-            } else {
-                $number = ($this->content['discount_price'][0] ?? 0);
-                return $this->persianToEnglishInt($number);
-            }
-        } else {
-            if ($main) {
-                return (int)($this->content['main_price'][0] ?? 0) * 10000;
-            } else {
-                return (int)($this->content['discount_price'][0] ?? 0) * 10000;
-            }
+        if ($main and $mainPrice != 0) {
+            return $this->persianToEnglishInt($mainPrice);
         }
+
+        if (!$main and $discountPrice != 0) {
+            return $this->persianToEnglishInt($discountPrice);
+        }
+
+        return 0;
     }
 
     private function getImageUrl()
@@ -113,8 +103,12 @@ class ResultResource extends JsonResource
         $persian = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹', '٬', ','];
         $english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '', ''];
 
-        $str = str_replace($persian, $english, $str);
+        $replaced = str_replace($persian, $english, $str);
 
-        return (int)$str * 10;
+        if ($replaced != $str) {
+            return (int)$replaced * 10;
+        } else {
+            return (int)$str * 10000;
+        }
     }
 }
