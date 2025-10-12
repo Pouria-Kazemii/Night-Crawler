@@ -71,7 +71,7 @@ class ResultResource extends JsonResource
         }
 
         $mainPrice = $this->content['main_price'][0] ?? $this->content['solo_price'][0] ?? 0;
-        $discountPrice = $this->content['discount_price'] ?? $this->content['solo_price'][1] ?? 0;
+        $discountPrice = $this->content['discount_price'][0] ?? $this->content['solo_price'][1] ?? 0;
 
         if ($main and $mainPrice != 0) {
             return $this->persianToEnglishInt($mainPrice);
