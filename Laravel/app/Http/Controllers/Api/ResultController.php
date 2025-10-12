@@ -14,24 +14,25 @@ class ResultController extends Controller
     {
         $isbn = $request->input('isbn', false);
         $crawler = $request->input('crawler_id', false);
+        $url = $request->input('url', false);
         $per_page = $request->input('per_page', 50);
 
         $results =  CrawlerResult::query();
 
         if ($isbn) {
-            
+
             $numbers = $this->ConvertNumbers($isbn);
 
             $results->where(function ($q) use ($numbers) {
                 $q->where('content.isbn', $numbers['persian'])
                     ->orWhere('content.isbn', $numbers['english']);
             });
-        }
-
-        if ($crawler) {
-            $jobs = CrawlerJobSender::where('crawler_id' , $crawler)->where('step' ,'!=' , (int)1);
+        } elseif ($crawler) {
+            $jobs = CrawlerJobSender::where('crawler_id', $crawler)->where('step', '!=', (int)1);
             $jobs_id = $jobs->pluck('id')->toArray();
             $results->whereIn('crawler_job_sender_id', $jobs_id);
+        } elseif ($url) {
+            $results->where('url', $url)->orWhere('final_url', $url);
         }
 
         return ResultResource::collection($results->paginate($per_page)->load('crawler:title'));
