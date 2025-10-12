@@ -32,7 +32,7 @@ class ResultController extends Controller
             $jobs_id = $jobs->pluck('id')->toArray();
             $results->whereIn('crawler_job_sender_id', $jobs_id);
         } elseif ($url) {
-            $results->where('url', $url)->orWhere('final_url', $url);
+            $results->Where('final_url', $url);
         }
 
         return ResultResource::collection($results->paginate($per_page)->load('crawler:title'));

@@ -43,18 +43,23 @@ class ResultResource extends JsonResource
     public function checkExists()
     {
         $exists = $this->content['exists'] ?? null;
-        if ($exists == ['ناموجود'] or  $exists == ['موجود نیست']) {
-            return false;
-        } elseif (($this->content['exists'] ?? null) == []) {
-            return true;
-        } elseif (
-            ($this->content['main_price']   ?? []) == [] &&
-            ($this->content['discount_price'] ?? []) == [] &&
-            ($this->content['solo_price'] ?? []) == []
-        ) {
-            return false;
+
+        if ($exists != null) {
+            if ($exists == ['ناموجود'] or  $exists == ['موجود نیست']) {
+                return false;
+            } elseif ($exists == []) {
+                return true;
+            }
         } else {
-            return true;
+            if (
+                ($this->content['main_price']   ?? []) == [] &&
+                ($this->content['discount_price'] ?? []) == [] &&
+                ($this->content['solo_price'] ?? []) == []
+            ) {
+                return false;
+            } else {
+                return true;
+            }
         }
     }
 
