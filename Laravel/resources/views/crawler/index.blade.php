@@ -63,16 +63,34 @@
                                             ویرایش
                                         </a>
 
-                                        <!-- Go Button -->
-                                        <form action="{{ route('crawler.go', $crawler) }}" method="POST"
+                                        <!-- Update Button -->
+                                        <form action="{{ route('crawler.update.result', $crawler) }}" method="POST"
                                             onsubmit="return confirm('آیا مطمئن هستید؟');">
                                             @csrf
                                             @method('POST')
                                             <button type="submit"
                                                 class="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded transition">
-                                                شروع
+                                                @if($crawler->last_run_at == null)
+                                                    شروع اول
+                                                @else
+                                                    بروزرسانی
+                                                @endif
                                             </button>
                                         </form>
+
+                                        <!-- Upgrade Button -->
+                                        @if($crawler->last_run_at != null)
+                                        <form action="{{ route('crawler.upgrade', $crawler) }}" method="POST"
+                                              onsubmit="return confirm('آیا مطمئن هستید؟');">
+                                            @csrf
+                                            @method('POST')
+                                            <input type="hidden" name="update" value="{{ false }}">
+                                            <button type="submit"
+                                                    class="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded transition">
+                                                ارتقا
+                                            </button>
+                                        </form>
+                                        @endif
 
                                         <a href="{{ route('crawler.results', $crawler) }}"
                                             class="bg-cyan-500 hover:bg-cyan-600 text-white text-sm px-3 py-1 rounded transition">

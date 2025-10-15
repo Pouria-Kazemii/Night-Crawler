@@ -6,88 +6,118 @@
     <div class="container mx-auto p-6">
 
         <!-- Use flex to align cards horizontally -->
-        <div class="flex flex-wrap gap-6 justify-start">
+        <div class="flex flex-wrap gap-6 justify-center">
             @foreach ($senders as $index => $item)
                 <div class="w-80 bg-white rounded-2xl shadow-lg border border-gray-200 p-6 flex flex-col">
 
                     <!-- Header -->
                     <div class="flex justify-between items-center border-b pb-3 mb-4">
                         <div class="text-lg font-semibold text-gray-800">
-                            {{ $senders->firstItem()+ $index. '_' . ($item->crawler['title'] ?? '') }}
+                            {{ $senders->firstItem() + $index . '_' . ($item->crawler['title'] ?? '') }}
                         </div>
                         <div class="text-sm text-gray-500">
-                            {{ $item->last_used_at?->diffForHumans()}}
+                            {{ $item->last_used_at?->diffForHumans() }}
                         </div>
                     </div>
 
                     <!-- Stats -->
-                    <div class="grid grid-cols-2 gap-4 text-center">
-                        <!-- وضعیت -->
-                        <div class="p-2 rounded-lg bg-gray-50 shadow-sm">
-                            @if ($item->status == 'success')
-                                <div class="text-green-600 text-xl font-extrabold">موفق</div>
-                            @elseif($item->status == 'failed')
-                                <div class="text-red-600 text-xl font-extrabold">خطا</div>
-                            @elseif($item->status == 'running')
-                                <div class="text-yellow-600 text-xl font-extrabold">در حال اجرا</div>
-                            @elseif($item->status == 'queued')
-                                <div class="text-cyan-600 text-xl font-extrabold">در صف اجرا</div>
-                            @endif
-                            <div class="text-gray-600 text-xs mt-1">وضعیت</div>
-                        </div>
+                    <div class="space-y-4">
 
-                        <!-- مرحله -->
-                        <div class="p-2 rounded-lg bg-gray-50 shadow-sm">
-                            <div class="text-lg font-bold">{{ $item->step }}</div>
-                            <div class="text-gray-600 text-xs mt-1">مرحله</div>
-                        </div>
+                        <div class="space-y-2">
+                            <!--  General Info -->
+                            <div class="text-sm font-semibold text-gray-700 text-center">مشخصات کلی</div>
+                            <div class="grid grid-cols-2 gap-4 text-center">
+                                <!-- Status -->
+                                <div class="p-2 rounded-lg bg-gray-50 shadow-sm">
+                                    @if ($item->status == 'success')
+                                        <div class="text-green-600 text-xl font-extrabold">موفق</div>
+                                    @elseif($item->status == 'failed')
+                                        <div class="text-red-600 text-xl font-extrabold">خطا</div>
+                                    @elseif($item->status == 'running')
+                                        <div class="text-yellow-600 text-xl font-extrabold">در حال اجرا</div>
+                                    @elseif($item->status == 'queued')
+                                        <div class="text-cyan-600 text-xl font-extrabold">در صف اجرا</div>
+                                    @endif
+                                    <div class="text-gray-600 text-xs mt-1">وضعیت</div>
+                                </div>
 
-                        <!-- کل آدرس‌ها -->
-                        <div class="p-2 rounded-lg bg-gray-50 shadow-sm">
-                            <div class="text-lg font-bold">{{ $total = count($item->urls) }}</div>
-                            <div class="text-gray-600 text-xs mt-1">لینک</div>
-                        </div>
+                                <!-- Step -->
+                                <div class="p-2 rounded-lg bg-gray-50 shadow-sm">
+                                    <div class="text-lg font-bold">{{ $item->step }}</div>
+                                    <div class="text-gray-600 text-xs mt-1">مرحله</div>
+                                </div>
 
-                        <!-- خطا -->
-                        <div class="p-2 rounded-lg bg-gray-50 shadow-sm">
-                            <div class="text-lg font-bold text-red-600">
-                                {{ $item->failed_url != null ? ($failed = count($item->failed_url)) : ($failed = 0) }}
+                                <!-- Retries -->
+                                <div class="p-2 rounded-lg bg-gray-50 shadow-sm">
+                                    <div class="text-lg font-bold">{{ $item->retries ?? 0 }}</div>
+                                    <div class="text-gray-600 text-xs mt-1">تلاش های مجدد </div>
+                                </div>
+
+                                <!-- Total Urls -->
+                                <div class="p-2 rounded-lg bg-gray-50 shadow-sm">
+                                    <div class="text-lg font-bold">{{ $total = $item->counts['url'] ?? ($total = 0) }}</div>
+                                    <div class="text-gray-600 text-xs mt-1">لینک</div>
+                                </div>
                             </div>
-                            <div class="text-gray-600 text-xs mt-1">خطا</div>
                         </div>
 
-                        <!-- موفق -->
-                        <div class="p-2 rounded-lg bg-gray-50 shadow-sm">
-                            <div class="text-lg font-bold text-green-600">
-                                {{ $success = $item->counts['success'] ?? ($success = 0) }}
+                        <!-- Links Section -->
+                        <div class="space-y-2">
+                            <div class="text-sm font-semibold text-gray-700 text-center">لینک‌ها</div>
+
+                            <div class="grid grid-cols-2 gap-3 text-center">
+
+                                <!-- Success -->
+                                <div class="p-2 rounded-lg bg-gray-50 shadow-sm">
+                                    <div class="text-lg font-bold text-green-600">
+                                        {{ $success = $item->counts['success'] ?? ($success = 0) }}
+                                    </div>
+                                    <div class="text-gray-600 text-xs mt-1">موفق</div>
+                                </div>
+
+                                <!-- Failed -->
+                                <div class="p-2 rounded-lg bg-gray-50 shadow-sm">
+                                    <div class="text-lg font-bold text-red-600">
+                                        {{ $item->failed_url != null ? ($failed = count($item->failed_url)) : ($failed = 0) }}
+                                    </div>
+                                    <div class="text-gray-600 text-xs mt-1">خطا</div>
+                                </div>
+
+                                <!-- Repeated -->
+                                <div class="p-2 rounded-lg bg-gray-50 shadow-sm">
+                                    <div class="text-lg font-bold text-amber-600">
+                                        {{ $repeated = $item->counts['repeated'] ?? 0 }}
+                                    </div>
+                                    <div class="text-gray-600 text-xs mt-1">تکراری</div>
+                                </div>
                             </div>
-                            <div class="text-gray-600 text-xs mt-1">موفق</div>
                         </div>
 
-                        <!-- تکراری -->
-                        <div class="p-2 rounded-lg bg-gray-50 shadow-sm">
-                            <div class="text-lg font-bold text-amber-600">
-                                {{ $repeated = $item->counts['repeated'] ?? 0 }}
+                        <!-- Exists Contents Section -->
+                        <div class="space-y-2">
+                            <div class="text-sm font-semibold text-gray-700 text-center">محتوای آدرس های تکراری</div>
+                            <div class="grid grid-cols-2 gap-3 text-center">
+                                <!-- محتوای تغییریافته -->
+                                <div class="p-2 rounded-lg bg-gray-50 shadow-sm">
+                                    <div class="text-lg font-bold text-amber-600">
+                                        {{ $changed = $item->counts['changed'] ?? 0 }}
+                                    </div>
+                                    <div class="text-gray-600 text-xs mt-1">تغییر یافته</div>
+                                </div>
+
+                                <!-- محتوای بدون تغییر -->
+                                <div class="p-2 rounded-lg bg-gray-50 shadow-sm">
+                                    <div class="text-lg font-bold text-zinc-600">
+                                        {{ $notChanged = $item->counts['not_changed'] ?? 0 }}
+                                    </div>
+                                    <div class="text-gray-600 text-xs mt-1">بدون تغییر</div>
+                                </div>
+
                             </div>
-                            <div class="text-gray-600 text-xs mt-1">تکراری</div>
                         </div>
 
-                        <!-- محتوای جدید -->
-                        <div class="p-2 rounded-lg bg-gray-50 shadow-sm">
-                            <div class="text-lg font-bold text-zinc-600">
-                                {{ $changed = $item->counts['changed'] ?? 0 }}
-                            </div>
-                            <div class="text-gray-600 text-xs mt-1">محتوای تغییر یافته</div>
-                        </div>
-
-                        <!-- محتوای جدید -->
-                        <div class="p-2 rounded-lg bg-gray-50 shadow-sm">
-                            <div class="text-lg font-bold text-zinc-600">
-                                {{ $changed = $item->counts['new'] ?? 0 }}
-                            </div>
-                            <div class="text-gray-600 text-xs mt-1">محتوای جدید</div>
-                        </div>
                     </div>
+
 
                     <!-- Progress "Battery Bar" -->
                     <div class="mt-6">

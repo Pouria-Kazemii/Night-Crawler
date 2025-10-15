@@ -25,7 +25,7 @@ class CrawlerController extends Controller
     {
         $crawlerTypes = CrawlerTypes::all();
 
-        return view('crawler.create' , compact('crawlerTypes'));
+        return view('crawler.create', compact('crawlerTypes'));
     }
 
     public function store(CreateCrawlerRequest $request): RedirectResponse
@@ -40,8 +40,8 @@ class CrawlerController extends Controller
     public function edit(Crawler $crawler): View
     {
         $crawlerTypes = CrawlerTypes::all();
-        
-        return view('crawler.edit', compact('crawler','crawlerTypes'));
+
+        return view('crawler.edit', compact('crawler', 'crawlerTypes'));
     }
 
     public function update(Crawler $crawler, UpdateCrawlerRequest $request): RedirectResponse
@@ -61,30 +61,41 @@ class CrawlerController extends Controller
             ->with('status', 'خزشگر با موفقیت حذف شد');
     }
 
-    public function go(Crawler $crawler): RedirectResponse
+    public function updateResult(Crawler $crawler): RedirectResponse
     {
-
         $crawlerManager = app(CreateNodeRequest::class);
 
-        $result = $crawlerManager->go($crawler);
+        $result = $crawlerManager->go($crawler, true);
 
         return redirect()->route('crawler.index')
             ->with($result['key'], $result['message']);
     }
 
-    public function results(Crawler $crawler) : View
+    public function upgrade(Crawler $crawler): RedirectResponse
     {
-        $results = CrawlerResult::where('crawler_id' , $crawler->_id)
-        ->orderByDesc('updated_at','desc')->paginate(15);
+
+        $crawlerManager = app(CreateNodeRequest::class);
+
+        $result = $crawlerManager->go($crawler, false);
+
+        return redirect()->route('crawler.index')
+            ->with($result['key'], $result['message']);
+    }
+
+
+    public function results(Crawler $crawler): View
+    {
+        $results = CrawlerResult::where('crawler_id', $crawler->_id)
+            ->orderByDesc('updated_at', 'desc')->paginate(15);
 
         return view('crawler.results', compact('results'));
     }
 
-    public function senders(Crawler $crawler) : View
+    public function senders(Crawler $crawler): View
     {
-        $senders = CrawlerJobSender::where('crawler_id' , $crawler->_id)
-        ->with(['crawler:_id,title'])
-        ->orderByStatusPriority()->paginate(8);
+        $senders = CrawlerJobSender::where('crawler_id', $crawler->_id)
+            ->with(['crawler:_id,title'])
+            ->orderByStatusPriority()->paginate(8);
 
         return view('crawler.senders', compact('senders'));
     }
@@ -92,7 +103,7 @@ class CrawlerController extends Controller
 
     private function normalizeCrawlerInput(array $data): array
     {
-        foreach (['pagination_rule', 'auth', 'api_config' , 'two_step'] as $field) {
+        foreach (['pagination_rule', 'auth', 'api_config', 'two_step'] as $field) {
             if (!empty($data[$field]) && is_string($data[$field])) {
                 $data[$field] = json_decode($data[$field], true);
             }
@@ -104,39 +115,33 @@ class CrawlerController extends Controller
             }
         }
 
-        if (!empty($data['selectors']) and $data['selectors'] != null) {
-            if (is_string($data['selectors'])) {
-                // Handle old comma-separated format
-                $selectors = array_map('trim', explode(',', $data['selectors']));
-                $data['selectors'] = array_map(function ($selector) {
-                    return [
-                        'key' => '',
-                        'selector' => $selector,
-                        'full_html' => false, // Default value for old format
-                    ];
-                }, $selectors);
-            } elseif (is_array($data['selectors'])) {
-                // Filter out empty selector entries
-                $data['selectors'] = array_filter($data['selectors'], function ($item) {
-                    return !empty($item['selector']);
-                });
+        if (!empty($data['selectors']) && is_array($data['selectors'])) {
+            // Filter out empty selector entries
+            $filteredSelectors = array_filter($data['selectors'], fn($item) => !empty($item['selector']));
 
-                // Normalize full_html field and reindex array
-                $data['selectors'] = array_values(array_map(function ($item) {
-                    return [
-                        'key' => $item['key'] ?? '',
-                        'selector' => $item['selector'],
-                        'full_html' => !empty($item['full_html']), // Convert to true/false
-                    ];
-                }, $data['selectors']));
+            $data['selectors'] = [];
+            $data['update_selectors'] = [];
+
+            foreach ($filteredSelectors as $item) {
+                $normalized = [
+                    'key' => $item['key'] ?? '',
+                    'selector' => $item['selector'],
+                    'full_html' => !empty($item['full_html']),
+                    'use_for_update' => !empty($item['is_update'])
+                ];
+
+                $data['selectors'][] = $normalized;
+
+                // Save update selector if checked
+                if (!empty($item['is_update'])) {
+                    $data['update_selectors'][] = $normalized;
+                }
             }
         } else {
             $data['selectors'] = [];
+            $data['update_selectors'] = [];
         }
-
-
 
         return $data;
     }
-
 }

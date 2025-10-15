@@ -32,19 +32,19 @@ return [
 
 
         'crawler-send' => [
-            'driver'       => 'mongodb',
-            'table'        => 'crawler-send-jobs',
-            'queue'        => 'default',
-            'connection'   => 'mongodb', // name of the MongoDB connection in config/database.php
-            'expire'       => 60,
+            'driver'       => 'redis',
+            'queue'        => 'crawler-send-jobs',
+            'connection'   => 'default',
+            'block_for'    => null,
+            'after_commit' => false,
         ],
 
         'crawler-receive' => [
-            'driver'       => 'mongodb',
-            'table'        => 'crawler-receive-jobs',
-            'queue'        => 'default',
-            'connection'   => 'mongodb',
-            'expire'       => 60,
+            'driver'       => 'redis',
+            'queue'        => 'crawler-receive-jobs',
+            'connection'   => 'default',
+            'block_for'    => null,
+            'after_commit' => false,
         ],
 
 

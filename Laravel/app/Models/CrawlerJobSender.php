@@ -28,7 +28,8 @@ class CrawlerJobSender extends EloquentModel
         'started_at',
         'completed_at',
         'counts',
-        'status_priority'
+        'status_priority',
+        'running_priority'
     ];
 
 
@@ -42,6 +43,7 @@ class CrawlerJobSender extends EloquentModel
             'completed_at' => 'datetime',
             'last_used_at' => 'datetime',
             'status_priority' => 'integer',
+            'running_priority' => 'integer'
         ];
     }
 
@@ -53,7 +55,7 @@ class CrawlerJobSender extends EloquentModel
             $priorityMap = [
                 'running' => 1,
                 'queued' => 2,
-                'error' => 3,
+                'failed' => 3,
                 'success' => 4
             ];
 
@@ -68,7 +70,7 @@ class CrawlerJobSender extends EloquentModel
 
     public function scopeGetLastQueued($query, $node_id)
     {
-        return $query->where('node_id', $node_id)->where('status', 'queued')->orderBy('updated_at');
+        return $query->where('node_id', $node_id)->where('status', 'queued')->orderBy('running_priority')->orderBy('updated_at');
     }
 
     public function lastResult()
