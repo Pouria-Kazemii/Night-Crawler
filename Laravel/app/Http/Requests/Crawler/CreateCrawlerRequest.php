@@ -81,6 +81,9 @@ class CreateCrawlerRequest extends FormRequest
             'api_config' => $this->check(['api']) ? ['required', 'array'] : ['nullable', 'array'], //TODO
 
             'dynamic_limit' => $this->check(['dynamic']) ? ['required', 'integer'] : ['nullable', 'integer'],
+            
+            'upgrade_dynamic_limit' =>  ['nullable', 'integer'],
+
 
             'selectors' => $this->check(CrawlerTypes::SELECTOR)
                 ? ['required', 'array']

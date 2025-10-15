@@ -45,9 +45,9 @@ if (!function_exists('getOptions')) {
             $type = $crawler->crawler_type;
         }
 
-        if($step != 2){
+        if ($step != 2) {
             $crawlerDelay = $crawler->crawl_delay ?? 0;
-        }else {
+        } else {
             $crawlerDelay = $crawler->crawl_delay_second_step ?? 0;
         }
 
@@ -91,7 +91,7 @@ if (!function_exists('getOptions')) {
                         'separate_items' => $crawler->array_selector != null ? $crawler->array_selector : false,
                         'crawl_delay' => $crawlerDelay,
                         $selectorKey => $selectorValue,
-                        'max_scrolls' => $crawler->dynamic_limit
+                        'max_scrolls' => $isUpdate ? $crawler->dynamic_limit : $crawler->upgrade_dynamic_limit
                     ]
                 ];
 
@@ -134,7 +134,7 @@ if (!function_exists('getOptions')) {
                         'separate_items' => $crawler->array_selector != null ? $crawler->array_selector : false,
                         'crawl_delay' => $crawlerDelay,
                         'limit' => $crawler->pagination_rule['limit'] ?? 1,
-                        'selectors' => $isUpdate? $crawler->update_selectors : $crawler->selectors
+                        'selectors' => $isUpdate ? $crawler->update_selectors : $crawler->selectors
                     ]
                 ];
                 break;

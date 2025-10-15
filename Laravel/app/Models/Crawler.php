@@ -30,6 +30,7 @@ class Crawler extends EloquentModel
         'auth',                    // array (JSON)
         'api_config',              // array (JSON)
         'dynamic_limit',           // integer
+        'upgrade_dynamic_limit',   // integer
         'schedule',                // array 
         'link_filter_rules',       // array (only for seed)
         'crawl_delay',             // integer

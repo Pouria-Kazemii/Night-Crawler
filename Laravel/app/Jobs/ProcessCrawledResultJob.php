@@ -40,12 +40,10 @@ class ProcessCrawledResultJob implements ShouldQueue
 
         $jobInstance = CrawlerJobSender::find($jobId);
 
-        $resultCount = CountManagementServiceProvider::createForJob($jobId, $jobInstance->counts);
+        $resultCount = CountManagementServiceProvider::createForJob($jobId, $jobInstance->counts ?? []);
 
         // ✅ Handle successful result
-        if ($statusCode === 200) {
-
-            $resultCount->incrementSuccess();
+        if ($statusCode === 200 or $statusCode === 404) {
 
             $newContent = $this->fixedContent($content, $type, $firstStep);
 
@@ -54,6 +52,8 @@ class ProcessCrawledResultJob implements ShouldQueue
             $urlCondition = ($type === 'seed' or $firstStep);
 
             if ($urlCondition) {
+
+                $resultCount->incrementsSuccess(count($newContent));
 
                 if (!is_null($existingResult)) {
 
@@ -99,6 +99,9 @@ class ProcessCrawledResultJob implements ShouldQueue
                     ]);
                 }
             } else {
+
+                $resultCount->incrementSuccess();
+
                 if (!is_null($existingResult)) {
 
                     $oldUpdateContent = $existingResult->content_difference;
@@ -192,7 +195,6 @@ class ProcessCrawledResultJob implements ShouldQueue
                             'crawler_status' => 'first_step_done'
                         ];
 
-                        app(\App\Services\CreateNodeRequest::class)->goSecondStep($crawlerInstance->_id, false, $allJobs?->pluck('id'));
                     } elseif ((($crawlerInstance->schedule['update'] ?? 0) != 0) or (($crawlerInstance->schedule['upgrade'] ?? 0) != 0)) {
 
                         $crawlerUpdate = [
@@ -209,6 +211,11 @@ class ProcessCrawledResultJob implements ShouldQueue
                     $crawlerUpdate = [
                         'crawler_status' => 'error'
                     ];
+                }
+
+                if ($step === 1) {
+
+                    app(\App\Services\CreateNodeRequest::class)->goSecondStep($crawlerInstance->_id, false, $allJobs?->pluck('id'));
                 }
 
                 $crawlerInstance->update($crawlerUpdate);
