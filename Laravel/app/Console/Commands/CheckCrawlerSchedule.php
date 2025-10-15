@@ -28,24 +28,51 @@ class CheckCrawlerSchedule extends Command
      */
     public function handle()
     {
-        $scheduleCrawlers = Crawler::
-        where(function ($query) {
+        $scheduleUpdateCrawlers = Crawler::where(function ($query) {
             $query->whereDoesntHave('crawlerJobSender', function ($q) {
-                $q->where('status', '!=' , 'success');
+                $q->where('status', '!=', 'success');
             });
-        })->
-        whereNotNull('next_run_at')->
-        where('schedule', '!=', '0')->
-        where('schedule' , '!=' , null)->
-        where('crawler_status', '!=', 'pause')->
-        where('next_run_at', '<=', Carbon::now('UTC'))->
-        get();
+        })->whereNotNull('next_update_run_at')
+        ->where('crawler_status', '!=', 'pause')
+        ->where('next_update_run_at', '<=', Carbon::now('UTC'))
+        ->orderBy('crawler_priority')->get();
 
-        foreach ($scheduleCrawlers as $scheduleCrawler) {
+        $scheduleUpgradeCrawlers = Crawler::where(function ($query) {
+            $query->whereDoesntHave('crawlerJobSender', function ($q) {
+                $q->where('status', '!=', 'success');
+            });
+        })->whereNotNull('next_upgrade_run_at')
+        ->where('crawler_status', '!=', 'pause')
+        ->where('next_upgrade_run_at', '<=', Carbon::now('UTC'))
+        ->orderBy('crawler_priority')->get();
 
-            $crawlerManager = app(CreateNodeRequest::class);
+        foreach ($scheduleUpdateCrawlers as $scheduleUpdateCrawler) {
 
-            $crawlerManager->go($scheduleCrawler);
+            if (($scheduleUpdateCrawler->schedule['update'] ?? 0) != 0) {
+
+                $crawlerManager = app(CreateNodeRequest::class);
+
+                $crawlerManager->go($scheduleUpdateCrawler, true);
+            } else {
+                
+                $scheduleUpdateCrawler->update([
+                    'next_update_run_at' => 0
+                ]);
+            }
+        }
+
+        foreach ($scheduleUpgradeCrawlers as $scheduleUpgradeCrawler) {
+
+            if (($scheduleUpdateCrawler->schedule['upgrade'] ?? 0) != 0) {
+
+                $crawlerManager = app(CreateNodeRequest::class);
+
+                $crawlerManager->go($scheduleUpgradeCrawler, false);
+            } else {
+                $scheduleUpgradeCrawler->update([
+                    'next_upgrade_run_at' => 0
+                ]);
+            }
         }
     }
 }

@@ -43,18 +43,23 @@ class ResultResource extends JsonResource
     public function checkExists()
     {
         $exists = $this->content['exists'] ?? null;
-        if ($exists == ['ناموجود'] or  $exists == ['موجود نیست']) {
-            return false;
-        } elseif (($this->content['exists'] ?? null) == []) {
-            return true;
-        } elseif (
-            ($this->content['main_price']   ?? []) == [] &&
-            ($this->content['discount_price'] ?? []) == [] &&
-            ($this->content['solo_price'] ?? []) == []
-        ) {
-            return false;
+
+        if ($exists != null) {
+            if ($exists == ['ناموجود'] or  $exists == ['موجود نیست']) {
+                return false;
+            } elseif ($exists == []) {
+                return true;
+            }
         } else {
-            return true;
+            if (
+                ($this->content['main_price']   ?? []) == [] &&
+                ($this->content['discount_price'] ?? []) == [] &&
+                ($this->content['solo_price'] ?? []) == []
+            ) {
+                return false;
+            } else {
+                return true;
+            }
         }
     }
 
@@ -66,7 +71,7 @@ class ResultResource extends JsonResource
         }
 
         $mainPrice = $this->content['main_price'][0] ?? $this->content['solo_price'][0] ?? 0;
-        $discountPrice = $this->content['discount_price'] ?? $this->content['solo_price'][1] ?? 0;
+        $discountPrice = $this->content['discount_price'][0] ?? $this->content['solo_price'][1] ?? 0;
 
         if ($main and $mainPrice != 0) {
             return $this->persianToEnglishInt($mainPrice);

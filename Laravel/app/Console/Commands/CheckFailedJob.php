@@ -62,6 +62,7 @@ class CheckFailedJob extends Command
                     $update['urls'] = $newUrls;
                     $update['retries'] = $retries;
                     $update['payload.options.crawl_delay'] = (int) $newDelay;
+                    $update['processed'] = false; 
 
                     $changed = true;
 

@@ -8,6 +8,7 @@ use App\Models\CrawlerNode;
 use App\Models\Crawler;
 use App\Models\CrawlerJobSender;
 use App\Models\CrawlerResult;
+use Carbon\Carbon;
 use Illuminate\Support\Arr;
 
 class CreateNodeRequest implements CreateNodeRequestInterface
@@ -18,23 +19,38 @@ class CreateNodeRequest implements CreateNodeRequestInterface
 
         $crawlerId = (string)$crawler->_id;
 
-        $isFirst = ($crawler->last_run_at ?? null) != null;
+        $isFirst = ($crawler->last_run_at ?? null) == null;
 
-        $urls = getUrls($crawler, $isUpdate);
+        if ($isUpdate and !$isFirst) {
 
-        if ($step === 1 and $isUpdate and !$isFirst) {
+            if (($crawler->schedule['update'] ?? 0) != 0) {
+                $crawler->update([
+                    'next_update_run_at' => Carbon::now('UTC')->addMinutes((int)$crawler->schedule['update'])
+                ]);
+            };
 
-            return $this->goSecondStep($crawlerId , true , $isFirst);
-
+            if ($step === 1) {
+                $this->goSecondStep($crawlerId, true);
+            }
         } else {
+
+            if ((($crawler->schedule['upgrade'] ?? 0) != 0) and !$isUpdate and !$isFirst) {
+                $crawler->update([
+                    'next_upgrade_run_at' => Carbon::now('UTC')->addMinutes((int)$crawler->schedule['upgrade'])
+                ]);
+            }
+
+            $urls = getUrls($crawler, $isUpdate);
+
             $step === 1 ?
                 $payloadOptions = getOptions($crawler, $isUpdate, $crawler->two_step['first'], $step) :
                 $payloadOptions = getOptions($crawler, $isUpdate);
+
             return $this->sendRequest($crawler, $urls, $payloadOptions, $crawlerId, $step);
         }
     }
 
-    public function goSecondStep(string $crawlerId, bool $special = false , $jobs_id = null)
+    public function goSecondStep(string $crawlerId, bool $special = false, $jobs_id = null)
     {
         $crawler = Crawler::find($crawlerId);
 
@@ -48,18 +64,9 @@ class CreateNodeRequest implements CreateNodeRequestInterface
 
             $finalResults = $results->get();
 
-            if ($finalResults->isEmpty()) {
-                $crawler->schedule == null ?
-                    $crawler->update([
-                        'status' => 'completed',
-                    ]) :
-                    $crawler->update([
-                        'status' => 'active',
-                    ]);
-            }
-
             $urls = $finalResults->pluck('url')->toArray();
 
+            $payloadOptions = getOptions($crawler, true, $crawler->two_step['second'], 2);
         } else {
 
             $results->whereIn('crawler_job_sender_id', $jobs_id);
@@ -68,33 +75,31 @@ class CreateNodeRequest implements CreateNodeRequestInterface
 
             $finalResults = $results->get();
 
-            if ($crawler->last_used_at == null) {
-                foreach ($finalResults as $arr) {
-                    $urls[] = $arr->content;
-                }
-            } else {
-                foreach ($finalResults as $arr) {
+            foreach ($finalResults as $arr) {
+                $arr->content_difference == null ?
+                    $urls[] = $arr->content :
                     $urls[] = $arr->content_difference;
-                }
             }
 
-            if ($finalResults->isEmpty()) {
-                $crawler->schedule == null ?
-                    $crawler->update([
-                        'status' => 'completed',
-                    ]) :
-                    $crawler->update([
-                        'status' => 'active',
-                    ]);
-            }
-
+            $payloadOptions = getOptions($crawler, false, $crawler->two_step['second'], 2);
         }
 
-        $urls = Arr::flatten($urls);
+        if (($urls ?? []) == []) {
 
-        $payloadOptions = getOptions($crawler, $crawler->two_step['second']);
+            (($crawler->schedule['update'] ?? 0) != 0) or (($crawler->schedule['upgrade'] ?? 0) != 0)
+                ?
+                $crawler->update([
+                    'status' => 'active',
+                ])
+                :
+                $crawler->update([
+                    'status' => 'completed',
+                ]);
+        } else {
+            $urls = Arr::flatten($urls);
 
-        $this->sendRequest($crawler, $urls, $payloadOptions, $crawler->_id, 2);
+            $this->sendRequest($crawler, $urls, $payloadOptions, $crawler->_id, 2);
+        }
     }
 
 
@@ -129,22 +134,23 @@ class CreateNodeRequest implements CreateNodeRequestInterface
 
                 // 4. Create crawler_jobs record
                 $sender = CrawlerJobSender::create([
-                    'crawler_id'    => $crawlerId,
-                    'node_id'       => $node->_id,
-                    'urls'          => $urlChunk->values()->all(),
-                    'status'        => 'queued',
-                    'retries'       => 0,
-                    'step'          => $step,
-                    'payload'       => $payloadOptions,
-                    'processed'     => false,
-                    'counts'        => [
-                        'url' => count($urls),
+                    'crawler_id'       => $crawlerId,
+                    'node_id'          => $node->_id,
+                    'urls'             => $urlChunk->values()->all(),
+                    'status'           => 'queued',
+                    'retries'          => 0,
+                    'step'             => $step,
+                    'payload'          => $payloadOptions,
+                    'processed'        => false,
+                    'running_priority' => $crawler->crawler_priority,
+                    'counts'           => [
+                        'url' => count($urlChunk),
                         'success' => 0,
                         'repeated' => 0,
                         'changed' => 0,
                         'not_changed' => 0,
                     ],
-                    'started_at'    => now(),
+                    'started_at'       => now(),
                 ]);
 
                 if (!CrawlerJobSender::where('status', 'running')->where('node_id', $node->_id)->exists()) {

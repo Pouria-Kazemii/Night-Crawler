@@ -45,7 +45,11 @@ if (!function_exists('getOptions')) {
             $type = $crawler->crawler_type;
         }
 
-        $isFirst = ($crawler->last_run_at ?? null) != null;
+        if($step != 2){
+            $crawlerDelay = $crawler->crawl_delay ?? 0;
+        }else {
+            $crawlerDelay = $crawler->crawl_delay_second_step ?? 0;
+        }
 
         switch ($type) {
 
@@ -54,8 +58,8 @@ if (!function_exists('getOptions')) {
                     'type' => $type,
                     'options' => [
                         'separate_items' => $crawler->array_selector != null ? $crawler->array_selector : false,
-                        'crawl_delay' => $crawler->crawl_delay != null ? $crawler->crawl_delay : 0,
-                        'selectors' => ($isUpdate and !$isFirst)  ? $crawler->update_selectors : $crawler->selectors
+                        'crawl_delay' => $crawlerDelay,
+                        'selectors' => $isUpdate ? $crawler->update_selectors : $crawler->selectors
                     ]
                 ];
                 break;
@@ -64,7 +68,7 @@ if (!function_exists('getOptions')) {
                 return [
                     'type' => $type,
                     'options' => [
-                        'crawl_delay' => $crawler->crawl_delay != null ? $crawler->crawl_delay : 0,
+                        'crawl_delay' => $crawlerDelay,
                         'link_filter_rules' => $crawler->link_filter_rules ?? null,
                         'selector' => $crawler->link_selector != null ? $crawler->link_selector : 'null'
                     ]
@@ -78,14 +82,14 @@ if (!function_exists('getOptions')) {
                     $selectorValue = $crawler->link_selector;
                 } else {
                     $selectorKey = 'selectors';
-                    $selectorValue = ($isUpdate and !$isFirst) ? $crawler->update_selectors : $crawler->selectors;
+                    $selectorValue = $isUpdate ? $crawler->update_selectors : $crawler->selectors;
                 }
 
                 return [
                     'type' => $type,
                     'options' => [
                         'separate_items' => $crawler->array_selector != null ? $crawler->array_selector : false,
-                        'crawl_delay' => $crawler->crawl_delay != null ? $crawler->crawl_delay : 0,
+                        'crawl_delay' => $crawlerDelay,
                         $selectorKey => $selectorValue,
                         'max_scrolls' => $crawler->dynamic_limit
                     ]
@@ -107,8 +111,8 @@ if (!function_exists('getOptions')) {
                     ],
                     'options' => [
                         'separate_items' => $crawler->array_selector != null ? $crawler->array_selector : false,
-                        'crawl_delay' => $crawler->crawl_delay != null ? $crawler->crawl_delay : 0,
-                        'selectors' => ($isUpdate and !$isFirst) ? $crawler->update_selectors : $crawler->selectors
+                        'crawl_delay' => $crawlerDelay,
+                        'selectors' => $isUpdate ? $crawler->update_selectors : $crawler->selectors
                     ]
                 ];
                 break;
@@ -128,9 +132,9 @@ if (!function_exists('getOptions')) {
                     'next_page_selector' => $crawler->pagination_rule['next_page_selector'],
                     'options' => [
                         'separate_items' => $crawler->array_selector != null ? $crawler->array_selector : false,
-                        'crawl_delay' => $crawler->crawl_delay != null ? $crawler->crawl_delay : 0,
+                        'crawl_delay' => $crawlerDelay,
                         'limit' => $crawler->pagination_rule['limit'] ?? 1,
-                        'selectors' => ($isUpdate and !$isFirst) ? $crawler->update_selectors : $crawler->selectors
+                        'selectors' => $isUpdate? $crawler->update_selectors : $crawler->selectors
                     ]
                 ];
                 break;

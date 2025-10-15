@@ -55,7 +55,7 @@
 
                                 <!-- Total Urls -->
                                 <div class="p-2 rounded-lg bg-gray-50 shadow-sm">
-                                    <div class="text-lg font-bold">{{ $total = count($item->urls) }}</div>
+                                    <div class="text-lg font-bold">{{ $total = $item->counts['url'] ?? ($total = 0) }}</div>
                                     <div class="text-gray-600 text-xs mt-1">لینک</div>
                                 </div>
                             </div>

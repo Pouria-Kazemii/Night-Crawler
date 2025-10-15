@@ -64,11 +64,10 @@
                                         </a>
 
                                         <!-- Update Button -->
-                                        <form action="{{ route('crawler.go', $crawler) }}" method="POST"
+                                        <form action="{{ route('crawler.update.result', $crawler) }}" method="POST"
                                             onsubmit="return confirm('آیا مطمئن هستید؟');">
                                             @csrf
                                             @method('POST')
-                                            <input type="hidden" name="update" value="{{ true }}">
                                             <button type="submit"
                                                 class="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded transition">
                                                 @if($crawler->last_run_at == null)
@@ -81,7 +80,7 @@
 
                                         <!-- Upgrade Button -->
                                         @if($crawler->last_run_at != null)
-                                        <form action="{{ route('crawler.go', $crawler) }}" method="POST"
+                                        <form action="{{ route('crawler.upgrade', $crawler) }}" method="POST"
                                               onsubmit="return confirm('آیا مطمئن هستید؟');">
                                             @csrf
                                             @method('POST')

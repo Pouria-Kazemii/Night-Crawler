@@ -25,7 +25,7 @@ class CrawlerResultReceiveRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type' => ['required', Rule::in(CrawlerTypes::all())],
+            'type' => ['required', Rule::in(CrawlerTypes::ALL_STEP)],
             'original_url' => 'required|string',
             'final_url' => 'nullable|string',
             'content' => 'nullable|array',

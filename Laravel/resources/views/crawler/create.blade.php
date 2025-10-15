@@ -62,6 +62,21 @@
                         @enderror
                     </div>
 
+                    <!-- Crawler Priority -->
+                    <div>
+                        <label for="crawler_priority" class="block text-sm font-bold text-gray-700">اولویت خزنده</label>
+                        <select name="crawler_priority" id="crawler_priority"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                            <option value="">انتخاب کنید</option>
+                            <option value="1" @selected(old('crawler_priority') === '1')>1</option>
+                            <option value="2" @selected(old('crawler_priority') === '2')>2</option>
+                            <option value="3" @selected(old('crawler_priority') === '3')>3</option>
+                        </select>
+                        @error('crawler_priority')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <!-- Base URL -->
                     <div>
                         <label for="base_url" class="block text-sm font-bold text-gray-700">Base URL</label>
@@ -115,47 +130,80 @@
                     </div>
 
 
-                    <!-- Range: start / end -->
+                    <!-- Upgrade_range: start / end -->
                     <div class="flex gap-4">
                         <div class="w-1/2">
-                            <label for="upgrade_range_start" class="block text-sm font-bold text-gray-700">شروع (start)</label>
-                            <input type="number" name="upgrade_range[start]" id="upgrade_range" value="{{ old('upgrade_range.start') }}"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                            <label for="upgrade_range_start" class="block text-sm font-bold text-gray-700">شروع برای
+                                ارتقا(start)</label>
+                            <input type="number" name="upgrade_range[start]" id="upgrade_range"
+                                value="{{ old('upgrade_range.start') }}"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
                             @error('upgrade_range.start')
-                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                             @enderror
                         </div>
                         <div class="w-1/2">
-                            <label for="upgrade_range_end" class="block text-sm font-bold text-gray-700">پایان (end)</label>
-                            <input type="number" name="upgrade_range[end]" id="upgrade_range_end" value="{{ old('upgrade_range.end') }}"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                            <label for="upgrade_range_end" class="block text-sm font-bold text-gray-700">پایان برای
+                                ارتقا (end)</label>
+                            <input type="number" name="upgrade_range[end]" id="upgrade_range_end"
+                                value="{{ old('upgrade_range.end') }}"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
                             @error('upgrade_range.end')
-                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                             @enderror
                         </div>
                     </div>
 
 
-                    <!-- Schedule -->
+                    <!-- Update Schedule -->
                     <div>
-                        <label for="schedule" class="block text-sm font-bold text-gray-700">زمان‌ بندی بر حسب
-                            دقیقه</label>
-                        <input id="schedule" type="number" name="schedule" placeholder="60"
-                            value="{{ old('schedule') }}"
+                        <label for="schedule_update" class="block text-sm font-bold text-gray-700">زمان‌ بندی بر حسب
+                            دقیقه برای بروزرسانی</label>
+                        <input id="schedule_update" type="number" name="schedule[update]" placeholder="60"
+                            value="{{ old('schedule.update') }}"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
-                        @error('schedule')
+                        @error('schedule.update')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Upgrade Schedule -->
+                    <div>
+                        <label for="schedule_upgrade" class="block text-sm font-bold text-gray-700">زمان‌ بندی بر حسب
+                            دقیقه برای ارتقا</label>
+                        <input id="schedule_upgrade" type="number" name="schedule[upgrade]" placeholder="60"
+                            value="{{ old('schedule.upgrade') }}"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                        @error('schedule.upgrade')
                             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <!-- Crawl Delay -->
                     <div>
-                        <label for="crawl_delay" class="block text-sm font-bold text-gray-700">تاخیر خزش (ثانیه)</label>
+                        <label for="crawl_delay" class="block text-sm font-bold text-gray-700">تاخیر خزش
+                            (ثانیه)</label>
                         <input type="number" name="crawl_delay" id="crawl_delay" value="{{ old('crawl_delay') }}"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
                         @error('crawl_delay')
                             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                         @enderror
+                    </div>
+
+                    <!-- Crawl Delay For Step 2 -->
+                    <div x-show="type === 'two_step'">
+                        <div>
+                            <label for="crawl_delay_second_step" class="block text-sm font-bold text-gray-700">تاخیر
+                                خزش برای
+                                مرحله دوم
+                                (ثانیه)</label>
+                            <input type="number" name="crawl_delay_second_step" id="crawl_delay_second_step"
+                                value="{{ old('crawl_delay_second_step') }}"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                            @error('crawl_delay_second_step')
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </div>
 
                     <!-- Two_step Config -->
@@ -192,23 +240,6 @@
                                 <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                             @enderror
                         </div>
-
-
-                        <!-- Just New Data Select -->
-                        <div>
-                            <label for="just_new_data" class="block text-sm font-bold text-gray-700 mb-1 mt-4">
-                                تنها لینک های جدید حاصل از مرحله اول در زمانبندی این خزشگر بارگیری شوند</label>
-                            <select name="just_new_data" id="just_new_data"
-                                class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm bg-white transition-colors duration-200 {{ old('just_new_data', $crawler->just_new_data ?? '') ? 'bg-red-100' : '' }}">
-                                <option value="" disabled selected>یک مورد را انتخاب کنید</option>
-                                <option value="true">بله</option>
-                                <option value="false">خیر</option>
-                            </select>
-                            @error('just_new_data')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
                     </div>
 
 
@@ -270,37 +301,46 @@
 
                         <div id="selectors-container">
                             @php
-                                $oldSelectors = old('selectors', [
-                                    ['key' => 'title', 'selector' => '', 'full_html' => false],
+                                $currentSelectors = old('selectors', [
+                                    ['key' => 'title', 'selector' => '', 'full_html' => false, 'is_update' => false],
                                 ]);
                             @endphp
 
-                            @foreach ($oldSelectors as $index => $selector)
+                            @foreach ($currentSelectors as $index => $selector)
                                 <div class="selector-group grid grid-cols-12 gap-2 items-end mb-2">
-                                    <div class="col-span-4">
+                                    <div class="col-span-3">
                                         <label class="block text-xs text-gray-500 mb-1">کلید</label>
                                         <input type="text" name="selectors[{{ $index }}][key]"
-                                            value="{{ $selector['key'] ?? '' }}"
+                                            value="{{ old("selectors.$index.key", $selector['key'] ?? '') }}"
                                             class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
                                             placeholder="مثال: title">
                                     </div>
 
-                                    <div class="col-span-4">
+                                    <div class="col-span-3">
                                         <label class="block text-xs text-gray-500 mb-1">سلکتور</label>
                                         <input type="text" name="selectors[{{ $index }}][selector]"
-                                            value="{{ $selector['selector'] ?? '' }}"
+                                            value="{{ old("selectors.$index.selector", $selector['selector'] ?? '') }}"
                                             class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
                                             placeholder="مثال: h1.title">
                                     </div>
 
-                                    <div class="col-span-3">
+                                    <div class="col-span-2">
                                         <label class="block text-xs text-gray-500 mb-1">دریافت HTML کامل</label>
                                         <input type="checkbox" name="selectors[{{ $index }}][full_html]"
-                                            value="1" {{ !empty($selector['full_html']) ? 'checked' : '' }}
+                                            value="1"
+                                            {{ old("selectors.$index.full_html", $selector['full_html'] ?? false) ? 'checked' : '' }}
                                             class="rounded border-gray-300 text-red-600 shadow-sm focus:ring-red-500">
                                     </div>
 
-                                    <div class="col-span-1">
+                                    <div class="col-span-2">
+                                        <label class="block text-xs text-gray-500 mb-1">استفاده برای بروزرسانی</label>
+                                        <input type="checkbox" name="selectors[{{ $index }}][is_update]"
+                                            value="1"
+                                            {{ old("selectors.$index.is_update", $selector['is_update'] ?? false) ? 'checked' : '' }}
+                                            class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+                                    </div>
+
+                                    <div class="col-span-2 text-left">
                                         @if ($index >= 1)
                                             <button type="button"
                                                 class="remove-selector bg-red-100 text-red-600 p-2 rounded-md hover:bg-red-200 text-sm">
@@ -320,193 +360,207 @@
                         @error('selectors')
                             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                         @enderror
-                    </div>
 
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            const container = document.getElementById('selectors-container');
-                            const addButton = document.getElementById('add-selector');
-                            let selectorCount = {{ count($oldSelectors) }};
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const container = document.getElementById('selectors-container');
+                                const addButton = document.getElementById('add-selector');
+                                let selectorCount = container.querySelectorAll('.selector-group').length;
 
-                            addButton.addEventListener('click', function() {
-                                const newGroup = document.createElement('div');
-                                newGroup.className = 'selector-group grid grid-cols-12 gap-2 items-end mb-2';
-                                newGroup.innerHTML = `
-                                <div class="col-span-4">
-                                    <label class="block text-xs text-gray-500 mb-1">کلید</label>
-                                    <input type="text" name="selectors[${selectorCount}][key]"
-                                        class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
-                                        placeholder="مثال: title" required>
-                                </div>
+                                addButton.addEventListener('click', function() {
+                                    const newGroup = document.createElement('div');
+                                    newGroup.className = 'selector-group grid grid-cols-12 gap-2 items-end mb-2';
 
-                                <div class="col-span-4">
-                                    <label class="block text-xs text-gray-500 mb-1">سلکتور</label>
-                                    <input type="text" name="selectors[${selectorCount}][selector]"
-                                        class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
-                                        placeholder="مثال: h1.title" required>
-                                </div>
+                                    newGroup.innerHTML = `
+            <div class="col-span-3">
+                <label class="block text-xs text-gray-500 mb-1">کلید</label>
+                <input type="text" name="selectors[${selectorCount}][key]"
+                    class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
+                    placeholder="مثال: title">
+            </div>
 
-                                <div class="col-span-3">
-                                    <label class="block text-xs text-gray-500 mb-1">دریافت HTML کامل</label>
-                                    <input type="checkbox" name="selectors[${selectorCount}][full_html]" value="1"
-                                        class="rounded border-gray-300 text-red-600 shadow-sm focus:ring-red-500">
-                                </div>
+            <div class="col-span-3">
+                <label class="block text-xs text-gray-500 mb-1">سلکتور</label>
+                <input type="text" name="selectors[${selectorCount}][selector]"
+                    class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
+                    placeholder="مثال: h1.title">
+            </div>
 
-                                <div class="col-span-1">
-                                    <button type="button" class="remove-selector bg-red-100 text-red-600 p-2 rounded-md hover:bg-red-200 text-sm">
-                                        حذف
-                                    </button>
-                                </div>
-                            `;
-                                container.appendChild(newGroup);
-                                selectorCount++;
+            <div class="col-span-2">
+                <label class="block text-xs text-gray-500 mb-1">دریافت HTML کامل</label>
+                <input type="checkbox" name="selectors[${selectorCount}][full_html]" value="1"
+                    class="rounded border-gray-300 text-red-600 shadow-sm focus:ring-red-500">
+            </div>
+
+            <div class="col-span-2">
+                <label class="block text-xs text-gray-500 mb-1">استفاده برای بروزرسانی</label>
+                <input type="checkbox" name="selectors[${selectorCount}][is_update]" value="1"
+                    class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+            </div>
+
+            <div class="col-span-2 text-left">
+                <button type="button"
+                    class="remove-selector bg-red-100 text-red-600 p-2 rounded-md hover:bg-red-200 text-sm">
+                    حذف
+                </button>
+            </div>
+        `;
+
+                                    container.appendChild(newGroup);
+                                    selectorCount++;
+                                });
+
+                                container.addEventListener('click', function(e) {
+                                    if (e.target.classList.contains('remove-selector')) {
+                                        e.target.closest('.selector-group').remove();
+
+                                        const groups = container.querySelectorAll('.selector-group');
+                                        groups.forEach((group, index) => {
+                                            group.querySelector('[name*="[key]"]').name = `selectors[${index}][key]`;
+                                            group.querySelector('[name*="[selector]"]').name =
+                                                `selectors[${index}][selector]`;
+                                            group.querySelector('[name*="[full_html]"]').name =
+                                                `selectors[${index}][full_html]`;
+                                            group.querySelector('[name*="[is_update]"]').name =
+                                                `selectors[${index}][is_update]`;
+                                        });
+
+                                        selectorCount = groups.length;
+                                    }
+                                });
                             });
-
-                            container.addEventListener('click', function(e) {
-                                if (e.target.classList.contains('remove-selector')) {
-                                    e.target.closest('.selector-group').remove();
-                                    const groups = container.querySelectorAll('.selector-group');
-                                    groups.forEach((group, index) => {
-                                        group.querySelector('[name*="[key]"]').name = `selectors[${index}][key]`;
-                                        group.querySelector('[name*="[selector]"]').name =
-                                            `selectors[${index}][selector]`;
-                                        const checkbox = group.querySelector('[name*="[full_html]"]');
-                                        if (checkbox) {
-                                            checkbox.name = `selectors[${index}][full_html]`;
-                                        }
-                                    });
-                                    selectorCount = groups.length;
-                                }
-                            });
-                        });
-                    </script>
+                        </script>
 
 
-                    <!-- Pagination Config -->
-                    <template x-if="isType('paginated')">
-                        <div>
-                            <label for="next_page_selector" class="block text-sm font-bold text-gray-700">سلکتور
-                                صفحه
-                                بعد</label>
-                            <input type="text" name="pagination_rule[next_page_selector]" id="next_page_selector"
-                                value="{{ old('pagination_rule.next_page_selector') }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
-                            @error('pagination_rule.next_page_selector')
-                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                            @enderror
 
-                            <label for="pagination_limit" class="block text-sm font-bold text-gray-700 mt-4">حداکثر
-                                صفحات</label>
-                            <input type="number" name="pagination_rule[limit]" id="pagination_limit"
-                                value="{{ old('pagination_rule.limit') }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
-                            @error('pagination_rule.limit')
-                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                            @enderror
+                        <!-- Pagination Config -->
+                        <template x-if="isType('paginated')">
+                            <div>
+                                <label for="next_page_selector" class="block text-sm font-bold text-gray-700">سلکتور
+                                    صفحه
+                                    بعد</label>
+                                <input type="text" name="pagination_rule[next_page_selector]"
+                                    id="next_page_selector" value="{{ old('pagination_rule.next_page_selector') }}"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                                @error('pagination_rule.next_page_selector')
+                                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                @enderror
+
+                                <label for="pagination_limit"
+                                    class="block text-sm font-bold text-gray-700 mt-4">حداکثر
+                                    صفحات</label>
+                                <input type="number" name="pagination_rule[limit]" id="pagination_limit"
+                                    value="{{ old('pagination_rule.limit') }}"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                                @error('pagination_rule.limit')
+                                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </template>
+
+                        <!-- Dynamic Config -->
+                        <template x-if="isType('dynamic')">
+                            <div>
+                                <label for="dynamic_limit" class="block text-sm font-bold text-gray-700">تعداد بارگیری
+                                    های
+                                    مجدد</label>
+                                <input type="number" name="dynamic_limit" id="dynamic_limit"
+                                    value="{{ old('dynamic_limit') }}"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                                @error('dynamic_limit')
+                                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </template>
+
+
+                        <!-- Auth Config -->
+                        <template x-if="isType('authenticated')">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700">آدرس ورود</label>
+                                <input type="url" name="auth[login_url]" value="{{ old('auth.login_url') }}"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                                @error('auth.login_url')
+                                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                @enderror
+
+                                <label class="block text-sm font-bold text-gray-700 mt-4">نام کاربری</label>
+                                <input type="text" name="auth[username]" value="{{ old('auth.username') }}"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                                @error('auth.username')
+                                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                @enderror
+
+                                <label class="block text-sm font-bold text-gray-700 mt-4">رمز عبور</label>
+                                <input type="password" name="auth[password]" value="{{ old('auth.password') }}"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                                @error('auth.password')
+                                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                @enderror
+
+                                <label class="block text-sm font-bold text-gray-700 mt-3">اطلاعات انتخاب کننده نام
+                                    کاربری</label>
+                                <input type="text" name="auth[username_selector]"
+                                    value="{{ old('auth.username_selector') }}"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
+                                    placeholder="html_tag[tag_attribute_name='tag_attribute_value'] برای مثال : input[name='login']">
+                                @error('auth.username_selector')
+                                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                @enderror
+
+                                <label class="block text-sm font-bold text-gray-700 mt-3">اطلاعات انتخاب کننده
+                                    رمزعبور</label>
+                                <input type="text" name="auth[password_selector]"
+                                    value="{{ old('auth.password_selector') }}"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
+                                    placeholder="html_tag[tag_attribute_name='tag_attribute_value'] برای مثال : input[name='password']">
+                                @error('auth.password_selector')
+                                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </template>
+
+
+                        <!-- API Config --> <!-- TODO -->
+                        <template x-if="isType('api')">
+                            <div>
+                                <label for="api_endpoint"
+                                    class="block text-sm font-bold text-gray-700">Endpoint</label>
+                                <input type="url" name="api_config[endpoint]" id="api_endpoint"
+                                    value="{{ old('api_config.endpoint') }}"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                                @error('api_config.endpoint')
+                                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                @enderror
+
+                                <label for="api_method"
+                                    class="block text-sm font-bold text-gray-700 mt-4">Method</label>
+                                <input type="text" name="api_config[method]" id="api_method"
+                                    value="{{ old('api_config.method') ?? 'GET' }}"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                                @error('api_config.method')
+                                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                @enderror
+
+                                <label for="api_token" class="block text-sm font-bold text-gray-700 mt-4">توکن
+                                    (اختیاری)</label>
+                                <input type="text" name="api_config[token]" id="api_token"
+                                    value="{{ old('api_config.token') }}"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                                @error('api_config.token')
+                                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </template>
+
+
+                        <!-- Submit -->
+                        <div class="flex justify-start mt-6">
+                            <button type="submit"
+                                class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition">
+                                ذخیره خزنده
+                            </button>
                         </div>
-                    </template>
-
-                    <!-- Dynamic Config -->
-                    <template x-if="isType('dynamic')">
-                        <div>
-                            <label for="dynamic_limit" class="block text-sm font-bold text-gray-700">تعداد بارگیری
-                                های
-                                مجدد</label>
-                            <input type="number" name="dynamic_limit" id="dynamic_limit"
-                                value="{{ old('dynamic_limit') }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
-                            @error('dynamic_limit')
-                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </template>
-
-
-                    <!-- Auth Config -->
-                    <template x-if="isType('authenticated')">
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700">آدرس ورود</label>
-                            <input type="url" name="auth[login_url]" value="{{ old('auth.login_url') }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
-                            @error('auth.login_url')
-                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                            @enderror
-
-                            <label class="block text-sm font-bold text-gray-700 mt-4">نام کاربری</label>
-                            <input type="text" name="auth[username]" value="{{ old('auth.username') }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
-                            @error('auth.username')
-                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                            @enderror
-
-                            <label class="block text-sm font-bold text-gray-700 mt-4">رمز عبور</label>
-                            <input type="password" name="auth[password]" value="{{ old('auth.password') }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
-                            @error('auth.password')
-                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                            @enderror
-
-                            <label class="block text-sm font-bold text-gray-700 mt-3">اطلاعات انتخاب کننده نام
-                                کاربری</label>
-                            <input type="text" name="auth[username_selector]"
-                                value="{{ old('auth.username_selector') }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
-                                placeholder="html_tag[tag_attribute_name='tag_attribute_value'] برای مثال : input[name='login']">
-                            @error('auth.username_selector')
-                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                            @enderror
-
-                            <label class="block text-sm font-bold text-gray-700 mt-3">اطلاعات انتخاب کننده
-                                رمزعبور</label>
-                            <input type="text" name="auth[password_selector]"
-                                value="{{ old('auth.password_selector') }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
-                                placeholder="html_tag[tag_attribute_name='tag_attribute_value'] برای مثال : input[name='password']">
-                            @error('auth.password_selector')
-                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </template>
-
-
-                    <!-- API Config --> <!-- TODO -->
-                    <template x-if="isType('api')">
-                        <div>
-                            <label for="api_endpoint" class="block text-sm font-bold text-gray-700">Endpoint</label>
-                            <input type="url" name="api_config[endpoint]" id="api_endpoint"
-                                value="{{ old('api_config.endpoint') }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
-                            @error('api_config.endpoint')
-                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                            @enderror
-
-                            <label for="api_method" class="block text-sm font-bold text-gray-700 mt-4">Method</label>
-                            <input type="text" name="api_config[method]" id="api_method"
-                                value="{{ old('api_config.method') ?? 'GET' }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
-                            @error('api_config.method')
-                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                            @enderror
-
-                            <label for="api_token" class="block text-sm font-bold text-gray-700 mt-4">توکن
-                                (اختیاری)</label>
-                            <input type="text" name="api_config[token]" id="api_token"
-                                value="{{ old('api_config.token') }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
-                            @error('api_config.token')
-                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </template>
-
-
-                    <!-- Submit -->
-                    <div class="flex justify-start mt-6">
-                        <button type="submit"
-                            class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition">
-                            ذخیره خزنده
-                        </button>
-                    </div>
                 </form>
             </div>
         </div>

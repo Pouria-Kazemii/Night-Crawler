@@ -54,6 +54,7 @@ class CreateCrawlerRequest extends FormRequest
             'description' => ['nullable', 'string'],
             'crawler_status' => ['required', Rule::in(['active', 'paused', 'completed', 'error', 'running', 'first_step_done'])],
             'crawler_type' => ['required', Rule::in(CrawlerTypes::ALL_STEP)],
+            'crawler_priority'=>['required' , 'integer' ,'min:1','max:3'],
             'base_url' => ['required', 'url'],
 
             'start_urls' => ['nullable', 'array'],
@@ -95,11 +96,13 @@ class CreateCrawlerRequest extends FormRequest
             'two_step' => $this->check(['two_step']) ? ['required', 'array'] : ['nullable', 'array'],
             'two_step.first' => $this->check(['two_step']) ? ['required', Rule::in(CrawlerTypes::FIRST_STEP)] : ['nullable', Rule::in(CrawlerTypes::FIRST_STEP)],
             'two_step.second' => $this->check(['two_step']) ? ['required', Rule::in(CrawlerTypes::SECOND_STEP)] : ['nullable', Rule::in(CrawlerTypes::SECOND_STEP)],
-            'just_new_data' => $this->check(['two_step'])  ? ['required', Rule::in(['true', 'false'])] : ['nullable', Rule::in(['true', 'false'])],
 
-            'schedule' => ['nullable', 'integer'],
+            'schedule.update' => ['nullable', 'integer', "min:0"],
+            'schedule.upgrade' => ['nullable', 'integer', "min:0"],
 
             'crawl_delay' => ['nullable', 'integer', 'min:0'],
+            'crawl_delay_second_step' => ['nullable', 'integer', 'min:0'],
+
 
             'link_filter_rules' => $this->check(['seed']) ? ['nullable', 'array'] : ['prohibited'],
             'link_filter_rules.*' => ['nullable', 'string'],
@@ -127,6 +130,7 @@ class CreateCrawlerRequest extends FormRequest
         return [
             'title.required' => 'عنوان الزامی است.',
             'crawler_status.required' => 'وضعیت خزنده الزامی است.',
+            'crawler_priority.required' => 'اولویت خرنده الزامی است',
             'crawler_type.required' => 'نوع خزنده را وارد کنید.',
             'base_url.required' => 'آدرس پایه الزامی است.',
 
@@ -144,6 +148,8 @@ class CreateCrawlerRequest extends FormRequest
 
             'api_config.required' => 'پیکربندی API برای این نوع خزنده الزامی است.',
 
+            'array_selector.required' => 'لطفا مقدار را انتخاب کنید',
+
             'selectors.required' => 'انتخاب کنندها برای این نوع از خزشگر الزامی میباشد',
             'selectors.array' => 'فرمت انتخاب کننده‌ها صحیح نیست',
             'selectors.*.key.required' => 'کلید انتخاب کننده الزامی است',
@@ -156,9 +162,6 @@ class CreateCrawlerRequest extends FormRequest
 
             'two_step.first.required' => 'انتخاب مرحله اول برای این نوع از خزشگر الزامی است',
             'two_step.second.required' => 'انتخاب مرحله دوم برای این نوع از خزشگر الزامی است',
-            'just_new_data.required' => 'لطفا مقدار را انتخاب کنید',
-            'array_selector.required' => 'لطفا مقدار را انتخاب کنید'
-
         ];
     }
 

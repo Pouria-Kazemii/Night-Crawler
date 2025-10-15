@@ -7,9 +7,7 @@ use App\Models\CrawlerJobSender;
 use App\Models\CrawlerResult;
 use App\Providers\CountManagementServiceProvider;
 use App\Services\CountManagement\DTOs\CounterData;
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -95,7 +93,7 @@ class ProcessCrawledResultJob implements ShouldQueue
                         'final_url' => urldecode($finalUrl),
                         'url' => $originalUrl,
                         'crawler_job_sender_id' => $jobId,
-                        'content' => $content,
+                        'content' => $newContent,
                         'content_upgrade' => true,
                         'content_difference' => null
                     ]);
@@ -169,7 +167,7 @@ class ProcessCrawledResultJob implements ShouldQueue
             }
 
             // If this was the last running job
-            if ($crawlerInstance && count($crawlerInstance->crawlerJobSender) === 1) {
+            if ($crawlerInstance && (count($crawlerInstance->crawlerJobSender) === 0)) {
 
                 $allJobs = Crawler::withNotProcessedSender()->find($crawlerId)?->crawlerJobSender ?? [];
 
@@ -194,41 +192,30 @@ class ProcessCrawledResultJob implements ShouldQueue
                             'crawler_status' => 'first_step_done'
                         ];
 
-                        app(\App\Services\CreateNodeRequest::class)->goSecondStep($crawlerInstance->_id, false , $allJobs?->pluck('id'));
+                        app(\App\Services\CreateNodeRequest::class)->goSecondStep($crawlerInstance->_id, false, $allJobs?->pluck('id'));
+                    } elseif ((($crawlerInstance->schedule['update'] ?? 0) != 0) or (($crawlerInstance->schedule['upgrade'] ?? 0) != 0)) {
+
+                        $crawlerUpdate = [
+                            'crawler_status' => 'active'
+                        ];
                     } else {
 
-                        $haveSchedule = false;
-
-                        //TODO :  FIX UPDATE ADN UPGRADE SCHEDULE
-//                        if (!empty($crawlerInstance->schedule['update']) and $crawlerInstance->schedule['update'] > 0 ) {
-//                            $crawlerUpdate = [
-//                                'crawler_status' => 'active',
-//                                'next_update_run_at' => Carbon::now('UTC')->addMinutes((int)$crawlerInstance->schedule['update'])
-//                            ];
-//                            $haveSchedule = true;
-//                        }
-//
-//                        if (!empty($crawlerInstance->schedule['upgrade']) and $crawlerInstance->schedule['upgrade'] > 0) {
-//                            $crawlerUpdate = [
-//                                'crawler_status' => 'active',
-//                                'next_upgrade_run_at' => Carbon::now('UTC')->addMinutes((int)$crawlerInstance->schedule['upgrade'])
-//                            ];
-//                            $haveSchedule = true;
-//                        }
-
-                        if(!$haveSchedule) {
-
-                            $crawlerUpdate = [
-                                'crawler_status' => 'completed'
-                            ];
-                        }
+                        $crawlerUpdate = [
+                            'crawler_status' => 'completed'
+                        ];
                     }
+                } else {
 
-                    $crawlerInstance->update($crawlerUpdate);
+                    $crawlerUpdate = [
+                        'crawler_status' => 'error'
+                    ];
                 }
+
+                $crawlerInstance->update($crawlerUpdate);
             }
         }
     }
+
 
     private function saveResults(CounterData $data, CrawlerJobSender $jobInstance): void
     {
@@ -236,12 +223,12 @@ class ProcessCrawledResultJob implements ShouldQueue
             'status' => $data->status->value,
             'counts' => [
                 'url' => $jobInstance->counts['url'],
-                'success'  => $data->counts['success'],
-                'repeated' => $data->counts['repeated'],
-                'changed'  => $data->counts['changed'],
-                'not_changed' => $data->counts['not_changed'],
+                'success'  => $jobInstance->counts['success'] + $data->counts['success'],
+                'repeated' => $jobInstance->counts['repeated'] + $data->counts['repeated'],
+                'changed'  => $jobInstance->counts['changed'] + $data->counts['changed'],
+                'not_changed' => $jobInstance->counts['not_changed'] + $data->counts['not_changed'],
             ],
-            'failed_url' => $data['failedUrls']
+            'failed_url' => $data->failedUrls
         ]);
     }
 
