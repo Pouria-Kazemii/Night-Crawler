@@ -43,7 +43,7 @@ class ProcessCrawledResultJob implements ShouldQueue
         $resultCount = CountManagementServiceProvider::createForJob($jobId, $jobInstance->counts ?? []);
 
         // ✅ Handle successful result
-        if ($statusCode === 200 or $statusCode === 404) {
+        if ($statusCode === 200) {
 
             $newContent = $this->fixedContent($content, $type, $firstStep);
 
@@ -174,7 +174,7 @@ class ProcessCrawledResultJob implements ShouldQueue
 
                 $allJobs = Crawler::withNotProcessedSender()->find($crawlerId)?->crawlerJobSender ?? [];
 
-                $allSuccess = true;
+                $allSuccess = true; 
 
                 foreach ($allJobs as $job) {
 
@@ -239,7 +239,7 @@ class ProcessCrawledResultJob implements ShouldQueue
         ]);
     }
 
-    private function fixedContent(array $content, string $type, bool $firstStep): array
+    private function fixedContent(?array $content, string $type, bool $firstStep): array
     {
         if ($type === 'seed' or $firstStep) {
             return array_map('urldecode', $content ?? []);
