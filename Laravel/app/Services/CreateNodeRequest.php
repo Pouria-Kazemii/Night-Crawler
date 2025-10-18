@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Contracts\CreateNodeRequestInterface;
+use App\Contracts\CreateNodeRequestInterface;  
 use App\Jobs\ProcessSendingCrawlerJob;
 use App\Models\CrawlerNode;
 use App\Models\Crawler;
@@ -154,7 +154,7 @@ class CreateNodeRequest implements CreateNodeRequestInterface
                 ]);
 
                 if (!CrawlerJobSender::where('status', 'running')->where('node_id', $node->_id)->exists()) {
-                    dispatch(new ProcessSendingCrawlerJob($sender))->onConnection('crawler-send');
+                    dispatch(new ProcessSendingCrawlerJob($sender))->onConnection('crawler-send')->onQueue('crawler-send-jobs');
                 }
             }
 

@@ -78,7 +78,7 @@ class CheckFailedJob extends Command
 
                     if ($newNode->active_jobs_count === 0) {
 
-                        dispatch(new ProcessSendingCrawlerJob($job))->onConnection('crawler-send');
+                        dispatch(new ProcessSendingCrawlerJob($job))->onConnection('crawler-send')->onQueue('crawler-send-jobs');
                     } else {
                         $update['status'] = 'queued';
                     }

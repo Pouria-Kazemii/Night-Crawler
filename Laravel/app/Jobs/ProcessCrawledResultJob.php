@@ -60,7 +60,7 @@ class ProcessCrawledResultJob implements ShouldQueue
 
                     $oldContent = $existingResult->content;
 
-                    $resultCount->incrementRepeated();
+                    $resultCount->incrementsRepeated(count($oldContent));
 
                     $contentChanged = $oldContent !== $newContent;
 
@@ -167,7 +167,7 @@ class ProcessCrawledResultJob implements ShouldQueue
 
             if ($newSender->exists()) {
 
-                dispatch(new ProcessSendingCrawlerJob($newSender->first()))->onConnection('crawler-send');
+                dispatch(new ProcessSendingCrawlerJob($newSender->first()))->onConnection('crawler-send')->onQueue('crawler-send-jobs');
             }
 
             // If this was the last running job

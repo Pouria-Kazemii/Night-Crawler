@@ -68,7 +68,7 @@ class ProcessSendingCrawlerJob implements ShouldQueue
 
                 if ($newSender->exists()) {
 
-                    dispatch(new ProcessSendingCrawlerJob($newSender->first()))->onConnection('crawler-send');
+                    dispatch(new ProcessSendingCrawlerJob($newSender->first()))->onConnection('crawler-send')->onQueue('crawler-send-jobs');
                 }
             }
         } catch (\Exception $e) {
@@ -81,7 +81,7 @@ class ProcessSendingCrawlerJob implements ShouldQueue
 
             if ($newSender->exists()) {
 
-                dispatch(new ProcessSendingCrawlerJob($newSender->first()))->onConnection('crawler-send');
+                dispatch(new ProcessSendingCrawlerJob($newSender->first()))->onConnection('crawler-send')->onQueue('crawler-send-jobs');
             }
         }
     }
