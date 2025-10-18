@@ -7,6 +7,7 @@ use App\Models\CrawlerJobSender;
 use App\Models\CrawlerResult;
 use App\Providers\CountManagementServiceProvider;
 use App\Services\CountManagement\DTOs\CounterData;
+use App\Services\CreateNodeRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -185,9 +186,9 @@ class ProcessCrawledResultJob implements ShouldQueue
                     }
                 }
 
-                if ($allSuccess) {
+                $step = $allJobs->last()->step;
 
-                    $step = $allJobs->last()->step;
+                if ($allSuccess) {
 
                     if ($step === 1) {
 
@@ -208,16 +209,16 @@ class ProcessCrawledResultJob implements ShouldQueue
                     }
                 } else {
 
-                    $step = 0 ;
-
                     $crawlerUpdate = [
                         'crawler_status' => 'error'
                     ];
                 }
 
                 if ($step === 1) {
+                    
+                    $crawlerManager = app(CreateNodeRequest::class);
 
-                    app(\App\Services\CreateNodeRequest::class)->goSecondStep($crawlerInstance->_id, false, $allJobs?->pluck('id'));
+                    $crawlerManager->goSecondStep($crawlerInstance->_id, false, $allJobs?->pluck('id'));
                 }
 
                 $crawlerInstance->update($crawlerUpdate);
