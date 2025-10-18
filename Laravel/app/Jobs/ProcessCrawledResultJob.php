@@ -185,6 +185,8 @@ class ProcessCrawledResultJob implements ShouldQueue
                     }
                 }
 
+                $step = 0 ;
+
                 if ($allSuccess) {
 
                     $step = $allJobs->last()->step;
