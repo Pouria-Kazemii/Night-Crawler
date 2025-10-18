@@ -185,8 +185,6 @@ class ProcessCrawledResultJob implements ShouldQueue
                     }
                 }
 
-                $step = 0 ;
-
                 if ($allSuccess) {
 
                     $step = $allJobs->last()->step;
@@ -209,6 +207,8 @@ class ProcessCrawledResultJob implements ShouldQueue
                         ];
                     }
                 } else {
+
+                    $step = 0 ;
 
                     $crawlerUpdate = [
                         'crawler_status' => 'error'
