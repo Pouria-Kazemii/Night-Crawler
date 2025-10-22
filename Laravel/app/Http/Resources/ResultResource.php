@@ -42,7 +42,7 @@ class ResultResource extends JsonResource
 
     public function checkExists()
     {
-        $exists = $this->content['exists'] ?? null;
+        $exists =$this->content_difference['exists'] ?? $this->content['exists'] ?? null;
 
         if ($exists != null) {
             if ($exists == ['ناموجود'] or  $exists == ['موجود نیست']) {
@@ -52,9 +52,9 @@ class ResultResource extends JsonResource
             }
         } else {
             if (
-                ($this->content['main_price']   ?? []) == [] &&
-                ($this->content['discount_price'] ?? []) == [] &&
-                ($this->content['solo_price'] ?? []) == []
+                ($this->content_difference['main_price'] ?? $this->content['main_price']   ?? []) == [] &&
+                ($this->content_difference['discount_price'] ?? $this->content['discount_price'] ?? []) == [] &&
+                ($this->content_difference['solo_price'] ?? $this->content['solo_price'] ?? []) == []
             ) {
                 return false;
             } else {
@@ -70,8 +70,11 @@ class ResultResource extends JsonResource
             return 0;
         }
 
-        $mainPrice = $this->content['main_price'][0] ?? $this->content['solo_price'][0] ?? 0;
-        $discountPrice = $this->content['discount_price'][0] ?? $this->content['solo_price'][1] ?? 0;
+        $mainPrice = $this->content_difference['main_price'][0] ?? $this->content['main_price'][0] ??
+            $this->content_difference['solo_price'][0] ??$this->content['solo_price'][0] ?? 0;
+
+        $discountPrice = $this->content_difference['discount_price'][0] ?? $this->content['discount_price'][0] ??
+            $this->content_difference['solo_price'][1] ?? $this->content['solo_price'][1] ?? 0;
 
         if ($main and $mainPrice != 0) {
             return $this->persianToEnglishInt($mainPrice);
