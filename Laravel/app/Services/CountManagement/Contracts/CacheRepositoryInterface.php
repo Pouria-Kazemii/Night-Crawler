@@ -8,4 +8,5 @@ interface CacheRepositoryInterface
     public function forever(string $key, $value): void;
     public function forget(string $key): void;
     public function increment(string $key, int $amount = 1): int;
+    public function keyExists(string $key): bool;
 }

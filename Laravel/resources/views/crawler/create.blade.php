@@ -473,6 +473,20 @@
                             </div>
                         </template>
 
+                        <template x-if="isType('dynamic')">
+                            <div x-show="type === 'two_step'">
+                                <label for="upgrade_dynamic_limit" class="block text-sm font-bold text-gray-700">تعداد بارگیری
+                                    های
+                                    مجدد برای بروزرسانی</label>
+                                <input type="number" name="upgrade_dynamic_limit" id="upgrade_dynamic_limit"
+                                    value="{{ old('upgrade_dynamic_limit') }}"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                                @error('upgrade_dynamic_limit')
+                                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </template>
+
 
                         <!-- Auth Config -->
                         <template x-if="isType('authenticated')">

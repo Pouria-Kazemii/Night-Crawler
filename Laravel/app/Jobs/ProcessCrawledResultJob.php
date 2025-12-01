@@ -7,6 +7,7 @@ use App\Models\CrawlerJobSender;
 use App\Models\CrawlerResult;
 use App\Providers\CountManagementServiceProvider;
 use App\Services\CountManagement\DTOs\CounterData;
+use App\Services\CreateNodeRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -40,12 +41,10 @@ class ProcessCrawledResultJob implements ShouldQueue
 
         $jobInstance = CrawlerJobSender::find($jobId);
 
-        $resultCount = CountManagementServiceProvider::createForJob($jobId, $jobInstance->counts);
+        $resultCount = CountManagementServiceProvider::createForJob($jobId, $jobInstance->counts ?? []);
 
         // ✅ Handle successful result
         if ($statusCode === 200) {
-
-            $resultCount->incrementSuccess();
 
             $newContent = $this->fixedContent($content, $type, $firstStep);
 
@@ -55,11 +54,13 @@ class ProcessCrawledResultJob implements ShouldQueue
 
             if ($urlCondition) {
 
+                $resultCount->incrementsSuccess(count($newContent));
+
                 if (!is_null($existingResult)) {
 
                     $oldContent = $existingResult->content;
 
-                    $resultCount->incrementRepeated();
+                    $resultCount->incrementsRepeated(count($oldContent));
 
                     $contentChanged = $oldContent !== $newContent;
 
@@ -99,6 +100,9 @@ class ProcessCrawledResultJob implements ShouldQueue
                     ]);
                 }
             } else {
+
+                $resultCount->incrementSuccess();
+
                 if (!is_null($existingResult)) {
 
                     $oldUpdateContent = $existingResult->content_difference;
@@ -163,7 +167,7 @@ class ProcessCrawledResultJob implements ShouldQueue
 
             if ($newSender->exists()) {
 
-                dispatch(new ProcessSendingCrawlerJob($newSender->first()))->onConnection('crawler-send');
+                dispatch(new ProcessSendingCrawlerJob($newSender->first()))->onConnection('crawler-send')->onQueue('crawler-send-jobs');
             }
 
             // If this was the last running job
@@ -171,7 +175,7 @@ class ProcessCrawledResultJob implements ShouldQueue
 
                 $allJobs = Crawler::withNotProcessedSender()->find($crawlerId)?->crawlerJobSender ?? [];
 
-                $allSuccess = true;
+                $allSuccess = true; 
 
                 foreach ($allJobs as $job) {
 
@@ -182,9 +186,9 @@ class ProcessCrawledResultJob implements ShouldQueue
                     }
                 }
 
-                if ($allSuccess) {
+                $step = $allJobs->last()->step;
 
-                    $step = $allJobs->last()->step;
+                if ($allSuccess) {
 
                     if ($step === 1) {
 
@@ -192,7 +196,6 @@ class ProcessCrawledResultJob implements ShouldQueue
                             'crawler_status' => 'first_step_done'
                         ];
 
-                        app(\App\Services\CreateNodeRequest::class)->goSecondStep($crawlerInstance->_id, false, $allJobs?->pluck('id'));
                     } elseif ((($crawlerInstance->schedule['update'] ?? 0) != 0) or (($crawlerInstance->schedule['upgrade'] ?? 0) != 0)) {
 
                         $crawlerUpdate = [
@@ -209,6 +212,13 @@ class ProcessCrawledResultJob implements ShouldQueue
                     $crawlerUpdate = [
                         'crawler_status' => 'error'
                     ];
+                }
+
+                if ($step === 1) {
+                    
+                    $crawlerManager = app(CreateNodeRequest::class);
+
+                    $crawlerManager->goSecondStep($crawlerInstance->_id, false, $allJobs?->pluck('id'));
                 }
 
                 $crawlerInstance->update($crawlerUpdate);
@@ -232,7 +242,7 @@ class ProcessCrawledResultJob implements ShouldQueue
         ]);
     }
 
-    private function fixedContent(array $content, string $type, bool $firstStep): array
+    private function fixedContent(?array $content, string $type, bool $firstStep): array
     {
         if ($type === 'seed' or $firstStep) {
             return array_map('urldecode', $content ?? []);

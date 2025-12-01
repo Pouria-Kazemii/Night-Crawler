@@ -51,4 +51,9 @@ class LaravelCacheRepository implements CacheRepositoryInterface
             throw new CacheOperationException('increment', $key, $e);
         }
     }
+
+    public function keyExists(string $key): bool
+    {
+        return $this->get($key) === null ? false : true;
+    } 
 }

@@ -36,7 +36,8 @@ return [
     'Are you sure you want to delete your account?' => 'از حذف کردن اطلاعات خود اطمینان دارید؟',  
     'Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.'
     =>'هنگامی که حساب کاربری خود را حذف کنید ،تمامی منابع و اطلاعات فورا حذف خواهند شد. لطفا رمز عبور خود را برای حذف حساب کاربری وارد کنید',
-    'Cancel' => 'لغو'
+    'Cancel' => 'لغو',
+    'unlimit' => 'بینهایت'
 
 
 
