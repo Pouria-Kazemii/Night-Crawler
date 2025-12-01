@@ -30,7 +30,9 @@ class CheckCrawlerSchedule extends Command
     {
         $scheduleUpdateCrawlers = Crawler::where(function ($query) {
             $query->whereDoesntHave('crawlerJobSender', function ($q) {
-                $q->where('status', '!=', 'success');
+                $q->where('status', '==', 'running')
+                ->where('status' , '==', 'queued')
+                ;
             });
         })->whereNotNull('next_update_run_at')
         ->where('crawler_status', '!=', 'pause')

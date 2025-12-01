@@ -19,3 +19,4 @@ require __DIR__ . '/crawlerNode.php';
 require __DIR__ . '/crawler.php';
 require __DIR__ . '/crawlerJobSenders.php';
 require __DIR__ . '/crawlerResult.php';
+require __DIR__ . '/customers.php';

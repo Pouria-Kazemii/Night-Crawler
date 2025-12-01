@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\CreateNodeRequest\Services;
 
-use App\Contracts\CreateNodeRequestInterface;  
 use App\Jobs\ProcessSendingCrawlerJob;
 use App\Models\CrawlerNode;
 use App\Models\Crawler;
 use App\Models\CrawlerJobSender;
 use App\Models\CrawlerResult;
+use App\Services\CreateNodeRequest\Contracts\CreateNodeRequestInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 
