@@ -8,7 +8,7 @@ use App\Http\Requests\Crawler\UpdateCrawlerRequest;
 use App\Models\Crawler;
 use App\Models\CrawlerJobSender;
 use App\Models\CrawlerResult;
-use App\Services\CreateNodeRequest;
+use App\Services\CreateNodeRequest\Services\CreateNodeRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
